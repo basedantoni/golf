@@ -16,12 +16,6 @@ export default function UserList() {
   const queryClient = useQueryClient();
   const { data: users } = useSuspenseQuery(trpc.user.all.queryOptions());
 
-  const { mutate: updateUser } = useMutation(
-    trpc.user.update.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries(trpc.user.pathFilter()),
-    })
-  );
-
   const { mutate: deleteUser } = useMutation(
     trpc.user.delete.mutationOptions({
       onSuccess: () => queryClient.invalidateQueries(trpc.user.pathFilter()),

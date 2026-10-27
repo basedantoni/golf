@@ -15,7 +15,7 @@ after plan 001; `pnpm test` exists only after plan 003.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001 | Restore lint gate + typecheck script | P1 | S | — | TODO |
+| 001 | Restore lint gate + typecheck script | P1 | S | — | DONE (FlatCompat crashed on eslint-config-next 16 → native flat config, approved) |
 | 002 | Patch vulnerable deps, fix ignored pnpm overrides | P1 | S | 001 | TODO |
 | 003 | Test baseline with Vitest (stats utils + router) | P1 | M | 001 | TODO |
 | 004 | Fix broken date-range filter (ms/s mismatch) | P1 | S | 003 | TODO |

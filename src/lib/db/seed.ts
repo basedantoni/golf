@@ -21,7 +21,7 @@ const golfData = JSON.parse(readFileSync(dataPath, 'utf-8'));
 
 const seedClubs = async () => {
   console.log('  📍 Seeding clubs...');
-  const clubsToInsert = golfData.clubData.playedClubs.map((club: any) => ({
+  const clubsToInsert = golfData.clubData.playedClubs.map((club: { clubId: string; name: string }) => ({
     id: club.clubId,
     name: club.name,
   }));

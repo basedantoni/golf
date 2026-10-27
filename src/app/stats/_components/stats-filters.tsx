@@ -7,6 +7,7 @@ import { DateRangeFilter } from './date-range-filter';
 import { ClubFilter } from './club-filter';
 import { HoleCountFilter } from './hole-count-filter';
 import type { FilterState } from '@/lib/types/stats';
+import { getPresetDateRange } from '@/lib/utils/stats';
 
 interface Club {
   id: string;
@@ -50,8 +51,6 @@ export function StatsFilters({
                       : 'all'
                   }
                   onChange={(preset) => {
-                    // Convert preset to dates using utility
-                    const { getPresetDateRange } = require('@/lib/utils/stats');
                     const { start, end } = getPresetDateRange(preset);
                     onFilterChange({
                       ...filters,

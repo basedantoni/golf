@@ -10,7 +10,6 @@ import { StatsBarChart } from "./charts/stats-bar-chart";
 import {
   toChartData,
   calculateAggregates,
-  getPresetDateRange,
 } from "@/lib/utils/stats";
 import type { FilterState } from "@/lib/types/stats";
 
