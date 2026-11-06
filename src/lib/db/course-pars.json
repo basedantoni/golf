@@ -1,0 +1,311 @@
+{
+  "8ae7a010-86ac-11e4-8c28-020000005b00": {
+    "name": "Butler Park Pitch & Putt",
+    "pars": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+    ]
+  },
+  "8c96d6b0-86ac-11e4-8c28-020000005b00": {
+    "name": "Brackenridge Park Golf Course",
+    "pars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8ae88a70-86ac-11e4-8c28-020000005b00": {
+    "name": "Hancock Golf Course",
+    "pars": [
+      4,
+      4,
+      4,
+      4,
+      3,
+      5,
+      4,
+      3,
+      4
+    ]
+  },
+  "8ca4b960-86ac-11e4-8c28-020000005b00": {
+    "name": "Morris Williams",
+    "pars": [
+      4,
+      5,
+      3,
+      4,
+      5,
+      4,
+      4,
+      3,
+      4,
+      4,
+      5,
+      3,
+      4,
+      3,
+      4,
+      4,
+      5,
+      4
+    ]
+  },
+  "8c8b6500-86ac-11e4-8c28-020000005b00": {
+    "name": "Riverside Golf Course Austin",
+    "pars": [
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8c2e50e0-86ac-11e4-8c28-020000005b00": {
+    "name": "Pedernales",
+    "pars": [
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3,
+      null
+    ]
+  },
+  "8ae7ee30-86ac-11e4-8c28-020000005b00": {
+    "name": "Falconhead Golf Club",
+    "pars": [
+      4,
+      null,
+      5,
+      null,
+      null,
+      4,
+      null,
+      3,
+      5,
+      null,
+      3,
+      5,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8c85e6c0-86ac-11e4-8c28-020000005b00": {
+    "name": "Roy Kizer Golf Course",
+    "pars": [
+      null,
+      5,
+      4,
+      3,
+      4,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      5,
+      3,
+      4,
+      null,
+      null
+    ]
+  },
+  "8b9a7550-86ac-11e4-8c28-020000005b00": {
+    "name": "Hermann Park",
+    "pars": [
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8bc4b9a0-86ac-11e4-8c28-020000005b00": {
+    "name": "Plum Creek Golf Course",
+    "pars": [
+      null,
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3,
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      3,
+      null
+    ]
+  },
+  "8ae926b0-86ac-11e4-8c28-020000005b00": {
+    "name": "Lions Municipal",
+    "pars": [
+      null,
+      null,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "92bf3960-86ac-11e4-8c28-020000005b00": {
+    "name": "Stonybrook Golf Course",
+    "pars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "3a1ac6b0-4236-11e7-a8fa-0680a328ea36": {
+    "name": "The Country Club at the Golden Nugget",
+    "pars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8c6cb970-86ac-11e4-8c28-020000005b00": {
+    "name": "Jimmy Clay Golf Course",
+    "pars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "8b221100-86ac-11e4-8c28-020000005b00": {
+    "name": "Alsatian Resort & Golf Club",
+    "pars": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      3,
+      null,
+      3,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  }
+}

@@ -15,6 +15,13 @@
       "when": 1763608541533,
       "tag": "0001_reflective_the_executioner",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793939125736,
+      "tag": "0002_legal_spot",
+      "breakpoints": true
     }
   ]
 }

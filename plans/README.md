@@ -23,9 +23,10 @@ after plan 001; `pnpm test` exists only after plan 003.
 | 006 | Normalized putts-per-round in chart + summary | P2 | S | 003, 004 | DONE (STOP hit: data.json has puttHoleCount 0 on all rounds → seed.ts falls back to holeStrokes.length when putts > 0, approved; default view now 30–40 near target; partial-tracking rounds under-normalize (7 dataset-wide < 20, 2 in default view); 17 untracked (0-putt) rounds now omitted instead of plotted as 0) |
 | 007 | Remove wildcard CORS, fix user update/delete | P2 | S | 003 | TODO |
 | 008 | Delete dead code/logs, fix README + gitignore | P2 | S | — (cleanest after 004–007) | TODO |
-| 009 | Design spike: round entry | P3 | M | — | TODO |
+| 009 | Design spike: round entry | P3 | M | — | TODO (par decision settled by ADR 0001 — par per Played Hole) |
 | 010 | Design spike: strokes-gained display | P3 | S | — | TODO |
-| 011 | Design spike: per-hole scorecard/trends | P3 | M | 009 (par decision) | TODO |
+| 011 | Design spike: per-hole scorecard/trends | P3 | M | 009 (par decision) | TODO (par decision settled by ADR 0001; `round_holes.par` exists after 012) |
+| 012 | Course hole results (eagle/birdie/par per Hole) | P2 | M | — | DONE (KOI-395; pars solved for Butler, Hancock, Morris Williams — 103/103 fully-known rounds match round_stats; other Courses partly Par Unknown pending scorecard entry in course-pars.json; Riverside #1 variant not provable from data) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) |
 REJECTED (with one-line rationale).

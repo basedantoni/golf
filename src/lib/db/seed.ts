@@ -14,6 +14,8 @@ import {
   userPlayedClubs,
   userPostedInClubs,
 } from './schema';
+import coursePars from './course-pars.json';
+import { parsForRound, type CourseParEntry } from './round-pars';
 
 // Read data.json
 const dataPath = join(process.cwd(), 'data.json');
@@ -91,12 +93,21 @@ const seedRounds = async (userId: string) => {
       strokes: round.strokes,
     });
 
-    // Insert hole-by-hole strokes
+    // Insert hole-by-hole strokes, with the Par each hole played to
+    const course = (coursePars as Record<string, CourseParEntry>)[round.clubId.id];
+    if (!course) console.warn(`  ⚠️  No course-pars.json entry for club ${round.clubId.id}`);
+    const pars = course
+      ? parsForRound(course, round.holeStrokes.length, round.strokes - round.score)
+      : [];
+    if (course && !course.pars.includes(null) && pars.every((p) => p === null)) {
+      console.warn(`  ⚠️  ${course.name}: no par layout matches round ${round.id} (par ${round.strokes - round.score})`);
+    }
     for (let i = 0; i < round.holeStrokes.length; i++) {
       await db.insert(roundHoles).values({
         roundId: round.id,
         holeNumber: i + 1,
         strokes: round.holeStrokes[i],
+        par: pars[i] ?? null,
       });
     }
 
