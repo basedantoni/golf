@@ -1,43 +1,56 @@
-This is a [Next.js](https://nextjs.org) MVP Starter Kit using [tRPC](https://trpc.io/), [Drizzle](https://orm.drizzle.team/) + SQLite, and [Shadcn UI](https://ui.shadcn.com/).
+# Golf Stats
 
-## Getting Started
+Personal golf statistics dashboard built from a scoring-app data export.
 
-First, install packages:
+- **Stack**: Next.js 16 (App Router) + tRPC v11 + Drizzle ORM on libsql (SQLite) + shadcn/Radix UI + Recharts.
+- **Pages**: `/stats` (trends and summary stats with filters), `/courses` (Best Result per Hole on each Course). `/` is the leftover starter page (user list).
+- **Vocabulary**: see [`GLOSSARY.md`](GLOSSARY.md). Decisions: [`docs/adr/`](docs/adr/).
+
+## Prerequisites
+
+- Node.js
+- **pnpm**. It's the only supported package manager: `pnpm-lock.yaml` and the overrides in `pnpm-workspace.yaml` are pnpm-specific.
+
+## Setup
 
 ```bash
-npm install
-# or
-yarn install
-# or
 pnpm install
-# or
-bun install
+cp .env.example .env        # then set DATABASE_URL, e.g. DATABASE_URL=file:./local.db
+# place your data export at ./data.json (see below) — required for seeding
+pnpm db:reset               # drop all tables, run migrations, seed from data.json
+pnpm dev                    # http://localhost:3000/stats
 ```
 
-Set Environment Variables:
+## data.json
 
-`cp .env.example .env`
+The seed reads `./data.json`, the scoring-app export. It is **git-ignored on purpose**: it contains personal data (name, email, round history). Never commit it.
 
-Next, run the development server:
+Top-level keys the seed uses:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `accountData`: `userId`, `userName`, `birthYear`, `email`
+- `clubData`: `playedClubs[]`, `followedClubs[]`, `postedInClubs[]`, each `{ clubId, name }`
+- `activityData.rounds[]`: `id`, `timestamp` (**epoch ms**), `clubId.id`, `score`, `strokes`, `holeStrokes[]`, `stats{...}` including `recommendedStats[]`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The export has no per-hole par. Par for each Hole comes from [`src/lib/db/course-pars.json`](src/lib/db/course-pars.json) (see [ADR 0001](docs/adr/0001-par-on-played-hole.md)). A Course missing from that file seeds with Par Unknown Holes. To propose pars for a new Course from its Rounds, run `pnpm tsx src/lib/db/solve-pars.ts`, then check the output against the scorecard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-Generate and Migrate to Local SQLite Database
+| Script | Purpose |
+|--------|---------|
+| `pnpm dev` | Dev server (Turbopack) |
+| `pnpm build` | Production build |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | TypeScript, no emit |
+| `pnpm test` | Vitest, single run |
+| `pnpm test:watch` | Vitest, watch mode |
+| `pnpm db:generate` | Generate a migration from `src/lib/db/schema.ts` |
+| `pnpm db:migrate` | Apply migrations to `DATABASE_URL` |
+| `pnpm db:seed` | Seed from `data.json` (into an empty, migrated db) |
+| `pnpm db:reset` | Drop all tables, migrate, and seed |
+| `pnpm db:studio` | Drizzle Studio database browser |
+| `pnpm clean` | Delete `.next` and `node_modules` |
 
-`pnpm db:generate && pnpm db:migrate`
+## Notes
 
-Seed and View Database
-
-`pnpm db:seed && pnpm db:studio`
+- The app serves a single hardcoded user (`DEFAULT_USER_ID` in `src/app/stats/page.tsx` and `src/app/courses/page.tsx`). Auth is future work.

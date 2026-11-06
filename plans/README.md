@@ -22,7 +22,7 @@ after plan 001; `pnpm test` exists only after plan 003.
 | 005 | Hole-count filter → single SQL subquery | P2 | S | 003 | DONE (KOI-152; optional Step 3 skipped — cross-user case already covered by existing test; 9-hole filter on local.db: 2 statements → 1, same 90 rounds) |
 | 006 | Normalized putts-per-round in chart + summary | P2 | S | 003, 004 | DONE (STOP hit: data.json has puttHoleCount 0 on all rounds → seed.ts falls back to holeStrokes.length when putts > 0, approved; default view now 30–40 near target; partial-tracking rounds under-normalize (7 dataset-wide < 20, 2 in default view); 17 untracked (0-putt) rounds now omitted instead of plotted as 0) |
 | 007 | Remove wildcard CORS, fix user update/delete | P2 | S | 003 | TODO |
-| 008 | Delete dead code/logs, fix README + gitignore | P2 | S | — (cleanest after 004–007) | TODO |
+| 008 | Delete dead code/logs, fix README + gitignore | P2 | S | — (cleanest after 004–007) | DONE (KOI-145; Step 2 grep still matches src/lib/db/solve-pars.ts — CLI output, kept like seed/reset; gitignore already had *.sqlite + data.json → added *.sqlite3 + PII comment; user.ts logs removed here, not by 007; dropping the context log left createTRPCContext's headers param unused → removed, and RSC context now calls connection() explicitly — headers() had been what kept /stats and /courses dynamic, build fails prerendering without it) |
 | 009 | Design spike: round entry | P3 | M | — | TODO (par decision settled by ADR 0001 — par per Played Hole) |
 | 010 | Design spike: strokes-gained display | P3 | S | — | TODO |
 | 011 | Design spike: per-hole scorecard/trends | P3 | M | 009 (par decision) | TODO (par decision settled by ADR 0001; `round_holes.par` exists after 012) |
