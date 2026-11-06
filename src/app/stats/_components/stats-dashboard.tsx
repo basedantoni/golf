@@ -131,13 +131,7 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
       />
 
       {/* Summary Stats */}
-      <SummaryStats
-        roundCount={aggregates?.roundCount ?? 0}
-        avgScore={aggregates?.avgScore ?? null}
-        avgFairwayPct={aggregates?.avgFairwayPct ?? null}
-        avgGirPct={aggregates?.avgGirPct ?? null}
-        avgPuttsPerRound={aggregates?.avgPuttsPerRound ?? null}
-      />
+      <SummaryStats aggregates={aggregates} />
 
       {/* Charts Grid */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -148,7 +142,6 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
           unit="%"
           yDomain={[0, 100]}
           targetValue={60}
-          targetLabel="Target: 60%"
         />
 
         <StatsLineChart
@@ -158,7 +151,6 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
           unit="%"
           yDomain={[0, 100]}
           targetValue={50}
-          targetLabel="Target: 50%"
         />
 
         <StatsLineChart
@@ -166,7 +158,6 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
           data={puttsChartData}
           color="#8b5cf6"
           targetValue={32}
-          targetLabel="Target: 32"
         />
 
         <StatsLineChart
