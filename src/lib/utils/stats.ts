@@ -46,13 +46,18 @@ export function calculateAggregates(rounds: RoundStatData[]) {
 // Preset date ranges
 export function getPresetDateRange(preset: string): { start: Date; end: Date } {
   const end = new Date();
-  const starts: Record<string, Date> = {
-    "30d": subDays(end, 30),
-    "90d": subDays(end, 90),
-    "1y": subYears(end, 1),
-    ytd: startOfYear(end),
-  };
-  return { start: starts[preset] ?? new Date(2000, 0, 1), end };
+  switch (preset) {
+    case "30d":
+      return { start: subDays(end, 30), end };
+    case "90d":
+      return { start: subDays(end, 90), end };
+    case "1y":
+      return { start: subYears(end, 1), end };
+    case "ytd":
+      return { start: startOfYear(end), end };
+    default: // "all" and anything unknown
+      return { start: new Date(2000, 0, 1), end };
+  }
 }
 
 // Timestamps are epoch milliseconds end-to-end (matches rounds.timestamp).

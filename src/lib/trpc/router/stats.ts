@@ -21,7 +21,6 @@ const statsFilterSchema = z.object({
   userId: z.string(),
 });
 
-
 export const statsRouter = {
   // Get aggregated stats with filters
   getRoundStats: publicProcedure
