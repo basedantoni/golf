@@ -1,27 +1,9 @@
-// Types for chart data
-export interface RoundStatData {
-  roundId: string;
-  timestamp: number;
-  score: number;
-  strokes: number;
-  clubId: string;
-  clubName: string;
-  // Calculated percentages
-  fairwayHitPct: number | null;
-  girPct: number | null;
-  puttsPerHole: number | null;
-  puttsPerRound: number | null;
-  // Raw stats (for detailed views)
-  fairwayMiddles: number | null;
-  fairwayHoleCount: number | null;
-  gir: number | null;
-  girHoleCount: number | null;
-  putts: number | null;
-  puttHoleCount: number | null;
-  birdies: number | null;
-  pars: number | null;
-  bogeys: number | null;
-}
+import type { RouterInputs, RouterOutputs } from "@/lib/trpc";
+
+// Wire types come from the stats router, so they can't drift from what it returns.
+export type RoundStatData = RouterOutputs["stats"]["getRoundStats"][number];
+export type Club = RouterOutputs["stats"]["getClubs"][number];
+export type StatsQueryInput = RouterInputs["stats"]["getRoundStats"];
 
 export type DatePreset = '30d' | '90d' | 'ytd' | '1y' | 'all';
 

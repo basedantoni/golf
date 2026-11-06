@@ -3,8 +3,8 @@ import type {
   RoundStatData,
   ChartDataPoint,
   FilterState,
+  StatsQueryInput,
 } from "@/lib/types/stats";
-import type { StatsFilter } from "@/lib/trpc/router/stats";
 
 // Transform round data to chart format
 export function toChartData(
@@ -98,8 +98,8 @@ export function getPresetDateRange(preset: string): { start: Date; end: Date } {
 export function buildStatsQueryInput(
   userId: string,
   filters: FilterState,
-): StatsFilter {
-  const input: StatsFilter = {
+): StatsQueryInput {
+  const input: StatsQueryInput = {
     userId,
     holeCountFilter: filters.holeCountFilter,
     fullyLoggedOnly: filters.fullyLoggedOnly,

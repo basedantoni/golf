@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { OptionSelect } from './option-select';
 import { ClubFilter } from './club-filter';
-import type { DatePreset, FilterState } from '@/lib/types/stats';
+import type { Club, DatePreset, FilterState } from '@/lib/types/stats';
 import { getPresetDateRange } from '@/lib/utils/stats';
 
 const ROUND_OPTIONS = [
@@ -29,11 +29,6 @@ const HOLE_COUNT_OPTIONS: { label: string; value: FilterState['holeCountFilter']
   { label: '9 hole rounds', value: '9' },
   { label: '18 hole rounds', value: '18' },
 ];
-
-interface Club {
-  id: string;
-  name: string;
-}
 
 interface StatsFiltersProps {
   filters: FilterState;

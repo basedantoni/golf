@@ -11,11 +11,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Filter } from 'lucide-react';
-
-interface Club {
-  id: string;
-  name: string;
-}
+import type { Club } from '@/lib/types/stats';
 
 interface ClubFilterProps {
   clubs: Club[];
