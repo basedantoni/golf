@@ -30,10 +30,6 @@ export function ClubFilter({ clubs, excludedIds, onChange }: ClubFilterProps) {
     }
   };
 
-  const clearAll = () => {
-    onChange([]);
-  };
-
   return (
     <div className="flex items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
@@ -56,7 +52,7 @@ export function ClubFilter({ clubs, excludedIds, onChange }: ClubFilterProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearAll}
+                  onClick={() => onChange([])}
                   className="h-auto p-1 text-xs"
                 >
                   Clear all

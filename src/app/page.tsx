@@ -26,9 +26,6 @@ export default function Home() {
             </Suspense>
           </div>
         </div>
-        <div className='w-full max-w-2xl overflow-y-scroll space-y-2'>
-          {/* <CreateChallengeForm /> */}
-        </div>
       </main>
     </HydrateClient>
   );

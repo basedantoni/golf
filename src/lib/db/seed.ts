@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { db } from '.';
