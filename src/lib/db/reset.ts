@@ -1,8 +1,6 @@
-import 'dotenv/config';
-
 import { createClient } from '@libsql/client';
-import { readFileSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { drizzle } from 'drizzle-orm/libsql';
+import { migrate } from 'drizzle-orm/libsql/migrator';
 import { seed } from './seed';
 
 const client = createClient({ url: process.env.DATABASE_URL! });
@@ -16,9 +14,9 @@ const dropAllTables = async () => {
   // Disable foreign key constraints temporarily
   await client.execute('PRAGMA foreign_keys = OFF');
 
-  // Get all table names
+  // Get all table names, including the migrations journal so every migration re-applies
   const result = await client.execute(
-    `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_litestream%' AND name NOT LIKE '__drizzle_%'`
+    `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_litestream%'`
   );
 
   const tables = result.rows.map((row) => ({ name: row.name as string }));
@@ -36,54 +34,11 @@ const dropAllTables = async () => {
 };
 
 /**
- * Runs all SQL migration files
+ * Applies migrations with Drizzle's migrator (same journal drizzle-kit migrate uses)
  */
 const runMigrations = async () => {
   console.log('  📦 Running migrations...');
-
-  const migrationsDir = join(process.cwd(), 'src/lib/db/migrations');
-  const files = readdirSync(migrationsDir)
-    .filter((file) => file.endsWith('.sql'))
-    .sort();
-
-  for (const file of files) {
-    const filePath = join(migrationsDir, file);
-    const sql = readFileSync(filePath, 'utf-8');
-
-    // Split by statement-breakpoint
-    const statements = sql
-      .split('--> statement-breakpoint')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-
-    for (const statement of statements) {
-      await client.execute(statement);
-    }
-
-    console.log(`    ✓ Applied migration: ${file}`);
-  }
-
-  // Create the drizzle migrations table and record migrations
-  await client.execute(
-    `CREATE TABLE IF NOT EXISTS __drizzle_migrations (
-      hash text PRIMARY KEY NOT NULL,
-      created_at numeric
-    )`
-  );
-
-  for (const file of files) {
-    const filePath = join(migrationsDir, file);
-    const sql = readFileSync(filePath, 'utf-8');
-    const crypto = await import('crypto');
-    const hash = crypto.createHash('sha256').update(sql).digest('hex');
-    const timestamp = Date.now();
-
-    await client.execute({
-      sql: 'INSERT OR IGNORE INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)',
-      args: [hash, timestamp],
-    });
-  }
-
+  await migrate(drizzle({ client }), { migrationsFolder: 'src/lib/db/migrations' });
   console.log('  ✅ Migrations complete');
 };
 

@@ -11,11 +11,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Filter } from 'lucide-react';
-
-interface Club {
-  id: string;
-  name: string;
-}
+import type { Club } from '@/lib/types/stats';
 
 interface ClubFilterProps {
   clubs: Club[];
@@ -32,10 +28,6 @@ export function ClubFilter({ clubs, excludedIds, onChange }: ClubFilterProps) {
     } else {
       onChange([...excludedIds, clubId]);
     }
-  };
-
-  const clearAll = () => {
-    onChange([]);
   };
 
   return (
@@ -60,7 +52,7 @@ export function ClubFilter({ clubs, excludedIds, onChange }: ClubFilterProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearAll}
+                  onClick={() => onChange([])}
                   className="h-auto p-1 text-xs"
                 >
                   Clear all

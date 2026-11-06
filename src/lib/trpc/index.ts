@@ -4,29 +4,11 @@ import type { AppRouter } from '@/lib/trpc/router/_app';
 import { appRouter } from '@/lib/trpc/router/_app';
 import { createCallerFactory, createTRPCContext } from '@/lib/trpc/context';
 
-/**
- * Create a server-side caller for the tRPC API
- * @example
- * const trpc = createCaller(createContext);
- * const res = await trpc.post.all();
- *       ^? Post[]
- */
+// Server-side caller; the router tests' seam (createCaller({ db })).
 const createCaller = createCallerFactory(appRouter);
 
-/**
- * Inference helpers for input types
- * @example
- * type PostByIdInput = RouterInputs['post']['byId']
- *      ^? { id: number }
- **/
 type RouterInputs = inferRouterInputs<AppRouter>;
 
-/**
- * Inference helpers for output types
- * @example
- * type AllPostsOutput = RouterOutputs['post']['all']
- *      ^? Post[]
- **/
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export { createTRPCContext, appRouter, createCaller };
