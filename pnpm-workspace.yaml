@@ -8,13 +8,13 @@ allowBuilds:
 # `pkg@N` keys scope an override to the vulnerable major, leaving newer majors alone.
 overrides:
   '@babel/core': ^7.29.1
-  '@humanfs/node': ^0.16.8
+  baseline-browser-mapping: ^2.11.0
   brace-expansion@1: ^1.1.21
+  browserslist: ^4.28.7
   flatted: ^3.4.4
+  '@humanfs/node': ^0.16.8
   minimatch@3: ^3.1.5
   picomatch@2: ^2.3.2
-  baseline-browser-mapping: ^2.11.0
-  browserslist: ^4.28.7
   postcss: ^8.5.10
   source-map-js: ^1.2.2
   ws: ^8.21.0
