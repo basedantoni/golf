@@ -60,28 +60,17 @@ export const statsRouter = {
           and ${roundStats.putts} >= ${holeCount}`);
       }
 
-      // Handle hole count filter
+      // Handle hole count filter — uncorrelated subquery, single statement
       if (holeCountFilter && holeCountFilter !== 'all') {
         const targetHoleCount = parseInt(holeCountFilter, 10);
 
-        // Subquery to get round IDs with the specified hole count
-        const roundIdsWithHoleCount = await ctx.db
-          .select({
-            roundId: roundHoles.roundId,
-            holeCount: sql<number>`count(*)`.as('holeCount')
-          })
+        const roundIdsWithHoleCount = ctx.db
+          .select({ roundId: roundHoles.roundId })
           .from(roundHoles)
           .groupBy(roundHoles.roundId)
           .having(sql`count(*) = ${targetHoleCount}`);
 
-        const filteredRoundIds = roundIdsWithHoleCount.map(r => r.roundId);
-
-        // If no rounds match the hole count, return empty array
-        if (filteredRoundIds.length === 0) {
-          return [];
-        }
-
-        conditions.push(inArray(rounds.id, filteredRoundIds));
+        conditions.push(inArray(rounds.id, roundIdsWithHoleCount));
       }
 
       // Build query
