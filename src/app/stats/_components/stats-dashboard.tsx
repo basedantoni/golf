@@ -30,6 +30,7 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
     endDate: null,
     excludeClubIds: [],
     holeCountFilter: "all",
+    fullyLoggedOnly: true,
   });
 
   // Fetch clubs for filter

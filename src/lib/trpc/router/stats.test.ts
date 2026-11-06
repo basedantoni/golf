@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createCaller } from '@/lib/trpc';
 import { createTestDb } from '@/lib/db/test-helpers';
+import { eq } from 'drizzle-orm';
 import { users, clubs, rounds, roundStats, roundHoles } from '@/lib/db/schema';
 
 type TestDb = Awaited<ReturnType<typeof createTestDb>>;
@@ -66,10 +67,11 @@ async function seed(db: TestDb) {
   await db.insert(roundHoles).values([...holes('r1', 18), ...holes('r2', 9), ...holes('rb', 9)]);
 }
 
+let db: TestDb;
 let caller: ReturnType<typeof createCaller>;
 
 beforeEach(async () => {
-  const db = await createTestDb();
+  db = await createTestDb();
   await seed(db);
   caller = createCaller({ db });
 });
@@ -193,6 +195,57 @@ describe('stats.getRoundStats', () => {
       expect(await empty.stats.getRoundStats({ userId: USER_A, holeCountFilter: '18' })).toEqual(
         [],
       );
+    });
+  });
+
+  describe('fullyLoggedOnly', () => {
+    // r1 (18 holes, 14 fairway holes) with a result logged on every hole.
+    const fullyLogged = {
+      fairwayMiddles: 7,
+      fairwayLefts: 4,
+      fairwayRights: 3,
+      gir: 9,
+      girShorts: 9,
+      putts: 36,
+    };
+
+    async function setR1(stats: Partial<typeof roundStats.$inferInsert>) {
+      await db.update(roundStats).set(stats).where(eq(roundStats.roundId, 'r1'));
+    }
+
+    it('returns only rounds with fairways, GIR and putts logged on every hole', async () => {
+      await setR1(fullyLogged);
+      expect(
+        ids(await caller.stats.getRoundStats({ userId: USER_A, fullyLoggedOnly: true })),
+      ).toEqual(['r1']);
+    });
+
+    it.each([
+      ['a fairway result is missing', { fairwayLefts: 3 }],
+      ['no fairway holes were tracked', { fairwayMiddles: 0, fairwayLefts: 0, fairwayRights: 0, fairwayHoleCount: 0 }],
+      ['a GIR result is missing', { girShorts: 8 }],
+      ['GIR covers fewer holes than the round', { girShorts: 8, girHoleCount: 17 }],
+      ['putts are fewer than holes', { putts: 17 }],
+    ])('excludes a round when %s', async (_, broken) => {
+      await setR1({ ...fullyLogged, ...broken });
+      expect(await caller.stats.getRoundStats({ userId: USER_A, fullyLoggedOnly: true })).toEqual(
+        [],
+      );
+    });
+
+    it('applies lastNRounds after filtering', async () => {
+      await setR1(fullyLogged);
+      expect(
+        ids(
+          await caller.stats.getRoundStats({ userId: USER_A, fullyLoggedOnly: true, lastNRounds: 1 }),
+        ),
+      ).toEqual(['r1']);
+    });
+
+    it('returns every round when false', async () => {
+      expect(
+        ids(await caller.stats.getRoundStats({ userId: USER_A, fullyLoggedOnly: false })),
+      ).toEqual(['r5', 'r4', 'r3', 'r2', 'r1']);
     });
   });
 

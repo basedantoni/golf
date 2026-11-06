@@ -33,6 +33,7 @@ export interface FilterState {
   endDate: Date | null;
   excludeClubIds: string[];
   holeCountFilter: 'all' | '9' | '18';
+  fullyLoggedOnly: boolean;
 }
 
 export interface ChartDataPoint {

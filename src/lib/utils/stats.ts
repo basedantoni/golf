@@ -102,6 +102,7 @@ export function buildStatsQueryInput(
   const input: StatsFilter = {
     userId,
     holeCountFilter: filters.holeCountFilter,
+    fullyLoggedOnly: filters.fullyLoggedOnly,
   };
 
   if (filters.mode === "lastN") {

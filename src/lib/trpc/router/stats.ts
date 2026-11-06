@@ -15,6 +15,8 @@ const statsFilterSchema = z.object({
   excludeClubIds: z.array(z.string()).optional(),
   // Hole count filter (9, 18, or all)
   holeCountFilter: z.enum(['all', '9', '18']).optional(),
+  // Only rounds with fairway, GIR and putt results logged on every hole
+  fullyLoggedOnly: z.boolean().optional(),
   // User ID (required)
   userId: z.string(),
 });
@@ -26,7 +28,7 @@ export const statsRouter = {
   getRoundStats: publicProcedure
     .input(statsFilterSchema)
     .query(async ({ ctx, input }) => {
-      const { startDate, endDate, lastNRounds, excludeClubIds, userId, holeCountFilter } = input;
+      const { startDate, endDate, lastNRounds, excludeClubIds, userId, holeCountFilter, fullyLoggedOnly } = input;
 
       // Build conditions array
       const conditions = [eq(rounds.userId, userId)];
@@ -43,6 +45,19 @@ export const statsRouter = {
         if (endDate) {
           conditions.push(lte(rounds.timestamp, endDate));
         }
+      }
+
+      if (fullyLoggedOnly) {
+        const holeCount = sql`(select count(*) from ${roundHoles} where ${roundHoles.roundId} = ${rounds.id})`;
+        // Results per direction must add up to the tracked hole counts; the
+        // export has only a putt total, so at least one putt per hole is the best check.
+        conditions.push(sql`${roundStats.fairwayHoleCount} > 0
+          and ${roundStats.fairwayLefts} + ${roundStats.fairwayMiddles} + ${roundStats.fairwayRights}
+            + ${roundStats.fairwayShorts} + ${roundStats.fairwayLongs} = ${roundStats.fairwayHoleCount}
+          and ${roundStats.girHoleCount} = ${holeCount}
+          and ${roundStats.gir} + ${roundStats.girLefts} + ${roundStats.girRights} + ${roundStats.girShorts}
+            + ${roundStats.girLongs} + ${roundStats.girNoChances} = ${roundStats.girHoleCount}
+          and ${roundStats.putts} >= ${holeCount}`);
       }
 
       // Handle hole count filter

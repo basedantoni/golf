@@ -1,6 +1,8 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { FilterModeToggle } from './filter-mode-toggle';
 import { RoundCountFilter } from './round-count-filter';
 import { DateRangeFilter } from './date-range-filter';
@@ -75,6 +77,17 @@ export function StatsFilters({
                 onFilterChange({ ...filters, holeCountFilter })
               }
             />
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="fully-logged-only"
+                checked={filters.fullyLoggedOnly}
+                onCheckedChange={(checked) =>
+                  onFilterChange({ ...filters, fullyLoggedOnly: checked === true })
+                }
+              />
+              <Label htmlFor="fully-logged-only">Fully logged rounds only</Label>
+            </div>
           </div>
         </div>
       </CardContent>

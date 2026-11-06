@@ -194,6 +194,7 @@ describe('buildStatsQueryInput', () => {
       endDate: null,
       excludeClubIds: [],
       holeCountFilter: 'all',
+      fullyLoggedOnly: true,
       ...overrides,
     };
   }
@@ -221,13 +222,19 @@ describe('buildStatsQueryInput', () => {
         endDate: new Date(1756577764201),
       }),
     );
-    expect(input).toEqual({ userId: 'u1', lastNRounds: 10, holeCountFilter: 'all' });
+    expect(input).toEqual({
+      userId: 'u1',
+      lastNRounds: 10,
+      holeCountFilter: 'all',
+      fullyLoggedOnly: true,
+    });
   });
 
   it('omits null dates and empty club exclusions', () => {
     expect(buildStatsQueryInput('u1', filters())).toEqual({
       userId: 'u1',
       holeCountFilter: 'all',
+      fullyLoggedOnly: true,
     });
   });
 
@@ -238,5 +245,11 @@ describe('buildStatsQueryInput', () => {
     );
     expect(input.excludeClubIds).toEqual(['c1', 'c2']);
     expect(input.holeCountFilter).toBe('9');
+  });
+
+  it('passes through fullyLoggedOnly when turned off', () => {
+    expect(buildStatsQueryInput('u1', filters({ fullyLoggedOnly: false })).fullyLoggedOnly).toBe(
+      false,
+    );
   });
 });
