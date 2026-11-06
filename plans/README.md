@@ -26,7 +26,7 @@ after plan 001; `pnpm test` exists only after plan 003.
 | 009 | Design spike: round entry | P3 | M | — | TODO (par decision settled by ADR 0001 — par per Played Hole) |
 | 010 | Design spike: strokes-gained display | P3 | S | — | TODO |
 | 011 | Design spike: per-hole scorecard/trends | P3 | M | 009 (par decision) | TODO (par decision settled by ADR 0001; `round_holes.par` exists after 012) |
-| 012 | Course hole results (eagle/birdie/par per Hole) | P2 | M | — | DONE (KOI-395; pars solved for Butler, Hancock, Morris Williams — 103/103 fully-known rounds match round_stats; other Courses partly Par Unknown pending scorecard entry in course-pars.json; Riverside #1 variant not provable from data) |
+| 012 | Course hole results (eagle/birdie/par per Hole) | P2 | M | — | DONE (KOI-395; all 15 Courses' pars entered from scorecards; 125/125 Rounds match round_stats Result counts; Riverside differs only on #1 (par 3, variant 4); browser check done) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) |
 REJECTED (with one-line rationale).
