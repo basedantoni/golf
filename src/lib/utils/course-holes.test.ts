@@ -13,7 +13,7 @@ describe('summarizeHoles', () => {
     expect(holes).toHaveLength(9);
     expect(holes[7]).toEqual({
       hole: 8,
-      usualPars: [3],
+      parsPlayed: [3],
       timesPlayed: 2,
       eagleOrBetter: 0,
       birdies: 1,
@@ -35,7 +35,7 @@ describe('summarizeHoles', () => {
 
   it('marks a Hole Par Unknown when no Played Hole has a par, but still counts plays', () => {
     const [hole] = summarizeHoles([{ holeNumber: 1, strokes: 3, par: null }], 1);
-    expect(hole).toMatchObject({ usualPars: [], timesPlayed: 1, birdies: 0, best: 'parUnknown' });
+    expect(hole).toMatchObject({ parsPlayed: [], timesPlayed: 1, birdies: 0, best: 'parUnknown' });
   });
 
   it('lists every par a tee-variant Hole has played to', () => {
@@ -46,6 +46,6 @@ describe('summarizeHoles', () => {
       ],
       1,
     );
-    expect(hole).toMatchObject({ usualPars: [3, 4], pars: 1, best: 'par' });
+    expect(hole).toMatchObject({ parsPlayed: [3, 4], pars: 1, best: 'par' });
   });
 });

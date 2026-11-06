@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import type { BestResult, HoleSummary } from "@/lib/utils/course-holes";
 
 const BEST_RESULT: Record<BestResult, { label: string; className: string }> = {
-  eagleOrBetter: { label: "Eagle+", className: "bg-amber-500 text-white" },
+  eagleOrBetter: { label: "Eagle or Better", className: "bg-amber-500 text-white" },
   birdie: { label: "Birdie", className: "bg-emerald-600 text-white" },
   par: { label: "Par", className: "bg-sky-600 text-white" },
   notYet: { label: "Not yet", className: "bg-muted text-muted-foreground" },
@@ -86,7 +86,7 @@ function HoleGrid({ userId, clubId }: { userId: string; clubId: string }) {
 
 function HoleCell({ hole }: { hole: HoleSummary }) {
   const best = BEST_RESULT[hole.best];
-  const parLabel = hole.usualPars.length ? hole.usualPars.join("/") : "?";
+  const parLabel = hole.parsPlayed.length ? hole.parsPlayed.join("/") : "?";
 
   return (
     <Card

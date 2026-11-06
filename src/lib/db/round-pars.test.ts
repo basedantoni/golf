@@ -18,6 +18,11 @@ describe('parsForRound', () => {
     expect(parsForRound(riverside, 9, 36)).toEqual([4, 4, 3, 4, 5, 4, 4, 3, 5]);
   });
 
+  it('still tries the Usual Par when a variant lists only the alternative', () => {
+    const altOnly = { ...riverside, variants: { '1': [3] } };
+    expect(parsForRound(altOnly, 9, 36)).toEqual([4, 4, 3, 4, 5, 4, 4, 3, 5]);
+  });
+
   it('leaves every Played Hole Par Unknown when no layout matches the Round total par', () => {
     expect(parsForRound(hancock, 9, 36)).toEqual(Array(9).fill(null));
   });

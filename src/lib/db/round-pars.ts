@@ -4,7 +4,7 @@ export type CourseParEntry = {
   name: string;
   // Usual Par per Hole; null = Par Unknown. Length is the Course's hole count.
   pars: (number | null)[];
-  // Hole number → every par that Hole plays to, depending on tee.
+  // Hole number → other pars that Hole plays to, depending on tee (Usual Par is always tried too).
   variants?: Record<string, number[]>;
 };
 
@@ -22,7 +22,8 @@ export function parsForRound(entry: CourseParEntry, holeCount: number, totalPar:
 
   let layouts: number[][] = [entry.pars as number[]];
   for (const hole of variantHoles) {
-    layouts = layouts.flatMap((l) => entry.variants![hole + 1].map((p) => l.with(hole, p)));
+    const options = new Set([entry.pars[hole] as number, ...entry.variants![hole + 1]]);
+    layouts = layouts.flatMap((l) => [...options].map((p) => l.with(hole, p)));
   }
   const match = layouts.map(fold).find((l) => l.reduce((a, b) => a! + b!, 0) === totalPar);
   return match ?? Array(holeCount).fill(null);

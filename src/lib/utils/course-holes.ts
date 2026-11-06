@@ -6,7 +6,7 @@ export type BestResult = "eagleOrBetter" | "birdie" | "par" | "notYet" | "parUnk
 
 export type HoleSummary = {
   hole: number;
-  usualPars: number[];
+  parsPlayed: number[];
   timesPlayed: number;
   eagleOrBetter: number;
   birdies: number;
@@ -18,7 +18,7 @@ export type HoleSummary = {
 export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: number): HoleSummary[] {
   const holes = Array.from({ length: courseHoleCount }, (_, i) => ({
     hole: i + 1,
-    usualPars: [] as number[],
+    parsPlayed: [] as number[],
     timesPlayed: 0,
     eagleOrBetter: 0,
     birdies: 0,
@@ -29,7 +29,7 @@ export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: numbe
   for (const { holeNumber, strokes, par } of playedHoles) {
     // A 9-hole Course played as 18: Played Holes 10-18 are Holes 1-9 again.
     const hole = holes[(holeNumber - 1) % courseHoleCount];
-    if (par !== null && !hole.usualPars.includes(par)) hole.usualPars.push(par);
+    if (par !== null && !hole.parsPlayed.includes(par)) hole.parsPlayed.push(par);
     if (!strokes) continue; // no score entered
     hole.timesPlayed++;
     if (par === null) continue;
@@ -42,9 +42,9 @@ export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: numbe
 
   return holes.map((h) => ({
     ...h,
-    usualPars: h.usualPars.sort((a, b) => a - b),
+    parsPlayed: h.parsPlayed.sort((a, b) => a - b),
     best:
-      h.usualPars.length === 0 ? "parUnknown"
+      h.parsPlayed.length === 0 ? "parUnknown"
       : h.eagleOrBetter ? "eagleOrBetter"
       : h.birdies ? "birdie"
       : h.pars ? "par"
