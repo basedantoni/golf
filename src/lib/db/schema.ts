@@ -80,6 +80,8 @@ export const roundHoles = sqliteTable(
       .references(() => rounds.id),
     holeNumber: integer("hole_number").notNull(),
     strokes: integer().notNull(),
+    // Par as played that day (tee variants differ); null = Par Unknown. See ADR 0001.
+    par: integer(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.roundId, table.holeNumber] }),
