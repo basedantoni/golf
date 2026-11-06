@@ -2,7 +2,6 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { FilterModeToggle } from './filter-mode-toggle';
 import { RoundCountFilter } from './round-count-filter';
 import { DateRangeFilter } from './date-range-filter';
@@ -86,7 +85,9 @@ export function StatsFilters({
                   onFilterChange({ ...filters, fullyLoggedOnly: checked === true })
                 }
               />
-              <Label htmlFor="fully-logged-only">Fully logged rounds only</Label>
+              <label htmlFor="fully-logged-only" className="text-sm leading-none font-medium select-none">
+                Fully logged rounds only
+              </label>
             </div>
           </div>
         </div>
