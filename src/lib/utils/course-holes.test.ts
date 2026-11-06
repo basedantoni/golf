@@ -17,7 +17,7 @@ describe('summarizeHoles', () => {
       timesPlayed: 2,
       eagleOrBetter: 0,
       birdies: 1,
-      pars: 1,
+      parCount: 1,
       aces: 0,
       best: 'birdie',
     });
@@ -46,6 +46,6 @@ describe('summarizeHoles', () => {
       ],
       1,
     );
-    expect(hole).toMatchObject({ parsPlayed: [3, 4], pars: 1, best: 'par' });
+    expect(hole).toMatchObject({ parsPlayed: [3, 4], parCount: 1, best: 'par' });
   });
 });

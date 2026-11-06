@@ -1,4 +1,5 @@
 // Usual Pars per Course (course-pars.json) → Par per Played Hole. See ADR 0001.
+import coursePars from './course-pars.json';
 
 export type CourseParEntry = {
   name: string;
@@ -7,6 +8,11 @@ export type CourseParEntry = {
   // Hole number → other pars that Hole plays to, depending on tee (Usual Par is always tried too).
   variants?: Record<string, number[]>;
 };
+
+// The par file entry for a Club's Course, if its pars have been entered.
+export function courseParEntry(clubId: string): CourseParEntry | undefined {
+  return (coursePars as Record<string, CourseParEntry>)[clubId];
+}
 
 // Par per Played Hole. A 9-hole Course played as 18 wraps back onto Holes 1-9.
 // Tee variants are settled by the combination whose sum is the Round's total par;

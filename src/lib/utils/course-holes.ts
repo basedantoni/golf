@@ -10,7 +10,7 @@ export type HoleSummary = {
   timesPlayed: number;
   eagleOrBetter: number;
   birdies: number;
-  pars: number;
+  parCount: number;
   aces: number;
   best: BestResult;
 };
@@ -22,7 +22,7 @@ export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: numbe
     timesPlayed: 0,
     eagleOrBetter: 0,
     birdies: 0,
-    pars: 0,
+    parCount: 0,
     aces: 0,
   }));
 
@@ -37,7 +37,7 @@ export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: numbe
     const diff = strokes - par;
     if (diff <= -2) hole.eagleOrBetter++;
     else if (diff === -1) hole.birdies++;
-    else if (diff === 0) hole.pars++;
+    else if (diff === 0) hole.parCount++;
   }
 
   return holes.map((h) => ({
@@ -47,7 +47,17 @@ export function summarizeHoles(playedHoles: PlayedHole[], courseHoleCount: numbe
       h.parsPlayed.length === 0 ? "parUnknown"
       : h.eagleOrBetter ? "eagleOrBetter"
       : h.birdies ? "birdie"
-      : h.pars ? "par"
+      : h.parCount ? "par"
       : "notYet",
   }));
+}
+
+// "7/9 Holes Par or better · 4 birdied"
+export function courseProgress(holes: HoleSummary[]) {
+  const atLeast = (results: BestResult[]) => holes.filter((h) => results.includes(h.best)).length;
+  return {
+    parOrBetter: atLeast(["eagleOrBetter", "birdie", "par"]),
+    birdied: atLeast(["eagleOrBetter", "birdie"]),
+    total: holes.length,
+  };
 }

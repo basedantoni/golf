@@ -15,12 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 import type { BestResult, HoleSummary } from "@/lib/utils/course-holes";
 
-const BEST_RESULT: Record<BestResult, { label: string; className: string }> = {
+const BEST_RESULT: Record<BestResult, { label: string; className: string; cellClassName?: string }> = {
   eagleOrBetter: { label: "Eagle or Better", className: "bg-amber-500 text-white" },
   birdie: { label: "Birdie", className: "bg-emerald-600 text-white" },
   par: { label: "Par", className: "bg-sky-600 text-white" },
-  notYet: { label: "Not yet", className: "bg-muted text-muted-foreground" },
-  parUnknown: { label: "?", className: "bg-muted text-muted-foreground" },
+  notYet: { label: "Not yet", className: "bg-muted text-muted-foreground", cellClassName: "opacity-50" },
+  parUnknown: { label: "?", className: "bg-muted text-muted-foreground", cellClassName: "opacity-40 grayscale" },
 };
 
 interface CourseHolesProps {
@@ -90,11 +90,7 @@ function HoleCell({ hole }: { hole: HoleSummary }) {
 
   return (
     <Card
-      className={cn(
-        "py-3",
-        hole.best === "notYet" && "opacity-50",
-        hole.best === "parUnknown" && "opacity-40 grayscale",
-      )}
+      className={cn("py-3", best.cellClassName)}
     >
       <CardContent className="space-y-2 px-3 text-center">
         <div className="flex items-baseline justify-between">
@@ -106,7 +102,7 @@ function HoleCell({ hole }: { hole: HoleSummary }) {
           {hole.aces > 0 && <Badge variant="outline">Ace ×{hole.aces}</Badge>}
         </div>
         <div className="text-xs text-muted-foreground">
-          E ×{hole.eagleOrBetter} · B ×{hole.birdies} · P ×{hole.pars}
+          E ×{hole.eagleOrBetter} · B ×{hole.birdies} · P ×{hole.parCount}
         </div>
         <div className="text-xs text-muted-foreground">
           Played {hole.timesPlayed}

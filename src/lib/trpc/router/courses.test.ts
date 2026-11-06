@@ -43,7 +43,7 @@ describe('courses.holeResults', () => {
 
     expect(result.name).toBe('Hancock Golf Course');
     expect(result.holes).toHaveLength(9);
-    expect(result.holes[0]).toMatchObject({ hole: 1, timesPlayed: 3, pars: 1, eagleOrBetter: 0, best: 'par' });
+    expect(result.holes[0]).toMatchObject({ hole: 1, timesPlayed: 3, parCount: 1, eagleOrBetter: 0, best: 'par' });
     expect(result.holes[7]).toMatchObject({ hole: 8, parsPlayed: [3], timesPlayed: 3, birdies: 1, best: 'birdie' });
     expect(result.progress).toEqual({ parOrBetter: 9, birdied: 2, total: 9 });
   });
