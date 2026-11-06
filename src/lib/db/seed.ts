@@ -124,7 +124,11 @@ const seedRounds = async (userId: string) => {
       girNoChances: round.stats.girNoChances,
       girHoleCount: round.stats.girHoleCount,
       putts: round.stats.putts,
-      puttHoleCount: round.stats.puttHoleCount,
+      // Source export reports puttHoleCount 0 even when putts were tracked;
+      // fall back to the round's hole count so puttsPerRound can normalize.
+      puttHoleCount:
+        round.stats.puttHoleCount ||
+        (round.stats.putts > 0 ? round.holeStrokes.length : 0),
       strokeGainOverall: round.stats.strokeGainOverall,
       strokeGainTeeToGreen: round.stats.strokeGainTeeToGreen,
     });

@@ -43,7 +43,7 @@ export function calculateAggregates(rounds: RoundStatData[]) {
 
   const validFairway = rounds.filter((r) => r.fairwayHitPct !== null);
   const validGir = rounds.filter((r) => r.girPct !== null);
-  const validPutts = rounds.filter((r) => r.putts !== null);
+  const validPutts = rounds.filter((r) => r.puttsPerRound !== null);
 
   return {
     roundCount: rounds.length,
@@ -60,7 +60,7 @@ export function calculateAggregates(rounds: RoundStatData[]) {
         : null,
     avgPuttsPerRound:
       validPutts.length > 0
-        ? validPutts.reduce((sum, r) => sum + (r.putts ?? 0), 0) /
+        ? validPutts.reduce((sum, r) => sum + (r.puttsPerRound ?? 0), 0) /
           validPutts.length
         : null,
   };

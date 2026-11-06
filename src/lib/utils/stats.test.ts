@@ -116,9 +116,9 @@ describe('calculateAggregates', () => {
 
   it('averages score over all rounds and each metric over rounds that have it', () => {
     const result = calculateAggregates([
-      round({ score: 2, fairwayHitPct: 50, girPct: null, putts: 30 }),
-      round({ score: 4, fairwayHitPct: null, girPct: 40, putts: null }),
-      round({ score: 6, fairwayHitPct: 70, girPct: null, putts: 34 }),
+      round({ score: 2, fairwayHitPct: 50, girPct: null, puttsPerRound: 30 }),
+      round({ score: 4, fairwayHitPct: null, girPct: 40, puttsPerRound: null }),
+      round({ score: 6, fairwayHitPct: 70, girPct: null, puttsPerRound: 34 }),
     ]);
     expect(result).toEqual({
       roundCount: 3,
@@ -131,8 +131,8 @@ describe('calculateAggregates', () => {
 
   it('returns null for a metric no round has while others still compute', () => {
     const result = calculateAggregates([
-      round({ score: 1, putts: 28 }),
-      round({ score: 3, putts: 32 }),
+      round({ score: 1, puttsPerRound: 28 }),
+      round({ score: 3, puttsPerRound: 32 }),
     ]);
     expect(result).toEqual({
       roundCount: 2,
@@ -141,6 +141,15 @@ describe('calculateAggregates', () => {
       avgGirPct: null,
       avgPuttsPerRound: 30,
     });
+  });
+
+  // Regression: raw putts blended 9- and 18-hole rounds into 23.5.
+  it('averages puttsPerRound, not raw putts, across 9- and 18-hole rounds', () => {
+    const result = calculateAggregates([
+      round({ putts: 15, puttsPerRound: 30 }),
+      round({ putts: 32, puttsPerRound: 32 }),
+    ]);
+    expect(result?.avgPuttsPerRound).toBe(31);
   });
 });
 
