@@ -19,6 +19,8 @@ Checked against all 125 seeded Rounds (`local.db` after `pnpm db:reset`, with pa
 
 So **`score` is strokes relative to par** (+14 means 14 over), and **`strokes` is the hole total**. Both are derivable from hole strokes plus the Par of each Played Hole. Entry never has to ask for either.
 
+The second check isn't independent. The seed only writes a Played Hole's Par when the Course's layout sums to `strokes − score`; otherwise it writes null. What it proves is that every Round got a Par on every Played Hole: **0 Par Unknown Played Holes** in the seeded data. That means the scorecard pars agree with the export's totals for every Round. The first check, together with the export's own `strokes`/`score` pair, is what pins down the meaning of `score`.
+
 Stat coverage in the import:
 - 81 of 125 Rounds log fairways.
 - 107 log GIR.
@@ -36,8 +38,8 @@ Manual entry should keep all three optional.
 | (b) Summary only (type totals into `roundStats` fields) | Low | Poor | No Played Holes, so `/courses` never sees these Rounds. Score has to be typed by hand. |
 | **(c) Hole-by-hole, Par per Played Hole prefilled, optional detail** | Medium | Best | Writes the same shape the seed writes (`round_holes.strokes` + `par`). `/courses` and `/stats` work unchanged. |
 
-How (c) works:
-- **Prefill.** Each Hole's Par comes from its Course's Usual Par in `course-pars.json`. If the Course has no entry there, it falls back to the Par of the same Hole in the user's most recent Round at that Club. Otherwise the field starts empty and the user types it.
+How (c) works. Note that `/stats` only shows an entered Round once it's fully logged; see Q10.
+- **Prefill.** Each Hole's Par comes from its Course's Usual Par in `course-pars.json` (`entry.pars`, read directly). If the Course has no entry there, it falls back to the Par of the same Hole in the user's most recent Round at that Club. Otherwise the field starts empty and the user types it.
 - **Tee variants.** The user edits a Par field (Riverside #1: 3 ↔ 4). The edited value is stored on that Played Hole, exactly as ADR 0001 intends.
 - **Par is required on every Played Hole.** That keeps `rounds.score` (NOT NULL) always derivable, and no entered Round is Par Unknown.
 - **Server-side derivation.** `score`, `strokes`, and the Result counts in `roundStats` (aces, eagles, birdies, pars, bogeys, double+) are computed on the server. Fairway, GIR and putt totals are computed from the optional per-hole detail.
@@ -78,22 +80,37 @@ const createRoundInput = z.object({
   timestamp: z.number().int(),                           // epoch ms, like rounds.timestamp
   holes: z.array(holeInput)
     .refine((h) => h.length === 9 || h.length === 18, 'A Round is 9 or 18 Played Holes')
-    .refine((h) => new Set(h.map((x) => x.holeNumber)).size === h.length, 'Duplicate hole'),
+    .refine((h) => {
+      // Played Holes must be 1–9, 10–18 or 1–18, each once
+      const nums = h.map((x) => x.holeNumber).sort((a, b) => a - b);
+      const start = nums[0];
+      return (start === 1 || (start === 10 && h.length === 9)) && nums.every((n, i) => n === start + i);
+    }, 'Played Holes must be 1–9, 10–18 or 1–18'),
 });
 ```
 
 Procedures:
-- **`rounds.prefillPars({ userId, clubId, holeCount, startHole })` → `(number | null)[]`.** Resolves in this order: `course-pars.json` entry (via `parsForRound`, wrapping 9-hole Courses), then the most recent Round at that Club, then `null`. It reuses `courseParEntry` from `src/lib/db/round-pars.ts`.
+- **`rounds.prefillPars({ userId, clubId, holeCount, startHole })` → `(number | null)[]`.** For Played Holes `startHole … startHole + holeCount − 1`, the Par of each one comes from, in order:
+  1. The `course-pars.json` entry, via `courseParEntry`. It reads `entry.pars[(holeNumber − 1) % entry.pars.length]` directly. It doesn't use `parsForRound`: that needs the Round's total par, which isn't known yet, and it has no start hole. For a tee-variant Hole, the Usual Par is prefilled and the user edits it.
+  2. The same Played Hole in the user's most recent Round at that Club.
+  3. `null`, which the user must fill in.
 - **`rounds.create(createRoundInput)` → `{ id }`.** It runs in one `ctx.db.transaction(async (tx) => …)`:
   1. If `club.name` was given, insert into `clubs` with a nanoid id.
   2. Insert into `rounds` with `strokes = Σ strokes` and `score = strokes − Σ par`.
   3. Insert the `roundHoles` rows (strokes, par and detail).
   4. Insert one `roundStats` row:
-     - Result counts come from a shared `resultOf(strokes, par)`, extracted from `summarizeHoles` so seed, `/courses` and entry bucket Results identically.
-     - Fairway direction counts and `fairwayHoleCount` count only non-null `fairway`.
-     - GIR counts and `girHoleCount` work the same way for `gir`.
-     - `putts` and `puttHoleCount` are the sum and count of non-null `putts`.
-     - `strokeGain*` stay null: the export computed those and we can't.
+     - **Result counts** use the export's buckets, so entered Rounds match seeded ones in `/stats`:
+       - `aces` (strokes = 1)
+       - `doubleEagleOrBetter` (≤ −3, not an ace)
+       - `eagles` (−2, not an ace)
+       - `birdies` (−1), `pars` (0), `bogeys` (+1)
+       - `doubleBogeyOrWorse` (≥ +2)
+
+       This needs a new helper, `roundResultCounts(holes)`. Don't reuse `summarizeHoles`: it counts an Ace inside Eagle or Better and doesn't compute bogeys or worse.
+     - **Fairway:** `hit` → `fairwayMiddles`, `left`/`right`/`short`/`long` → `fairwayLefts`/`…Rights`/`…Shorts`/`…Longs`. `fairwayHoleCount` = number of non-null `fairway`.
+     - **GIR:** `hit` → `gir`, the misses → `girLefts`/`…Rights`/`…Shorts`/`…Longs`, `noChance` → `girNoChances`. `girHoleCount` = number of non-null `gir`.
+     - **Putts:** `putts` and `puttHoleCount` = sum and count of non-null `putts`.
+     - **Stroke gain:** pass `strokeGainOverall: null, strokeGainTeeToGreen: null` **explicitly**. Both columns default to `100`, and the export computed them; we can't.
   5. Upsert `userPlayedClubs`.
 
   Any failure rolls back the whole Round. drizzle-orm 0.45.4's libsql session exposes `transaction()`; it's verified in the installed `.d.ts`, but not exercised yet.
@@ -137,6 +154,8 @@ Each comes with a recommendation.
 7. **New Clubs inline?** Recommend **yes, name only**. One Club has one Course today (glossary), so creating a Club creates its Course. Its pars come from the first Round entered there, and later Rounds prefill from it.
 8. **Should entered pars for a new Course be written back to `course-pars.json`?** Recommend **no**: a runtime write to a committed file is a footgun. The "most recent Round at this Club" prefill covers it. Revisit moving pars into the database only if entry overtakes import (that would supersede ADR 0001).
 9. **Which user?** Recommend the hardcoded `DEFAULT_USER_ID`, the same as `/stats` and `/courses`, until auth exists.
+10. **`/stats` hides partly logged Rounds by default.** The dashboard defaults to "Fully logged rounds only" (KOI-394), so a Round entered without fairway, GIR and putts on every Hole won't show there until that filter is turned off. `/courses` shows it either way. Recommend keeping the default. Add a note after submit when detail is incomplete ("Shown on /courses; hidden on /stats while 'Fully logged rounds only' is on"), rather than changing the filter.
+11. **Hole count of a new Club's Course.** With no par-file entry, `courses.holeResults` falls back to the highest Played Hole number. A new 9-hole Course played as 18 would show 18 Holes, and the Front/Back choice can't know whether the Course has 18 holes. Recommend asking "9 or 18 holes?" when creating a Club and storing it in a new nullable `clubs.holeCount` column, which becomes `holeResults`' fallback before max(`holeNumber`). The alternative is requiring a `course-pars.json` entry before a Club can get Rounds, which blocks entry at new Courses.
 
 ## 6. Build-plan skeleton
 
@@ -144,8 +163,8 @@ Each step stays green on typecheck, lint and tests. S ≈ ≤1h, M ≈ half a da
 
 | # | Step | Effort |
 |---|---|---|
-| 1 | Schema: `rounds.id` default, `roundHoles` putts/fairway/gir. `pnpm db:generate`, then a migration round-trip (`db:reset` → `drizzle-kit migrate` is a no-op) | S |
-| 2 | Extract `resultOf(strokes, par)` from `summarizeHoles` into `course-holes.ts`, plus unit tests | S |
+| 1 | Schema: `rounds.id` default, `roundHoles` putts/fairway/gir, `clubs.holeCount` (if Q11 = yes). `pnpm db:generate`, then a migration round-trip (`db:reset` → `drizzle-kit migrate` is a no-op) | S |
+| 2 | `roundResultCounts(holes)` with the export's buckets (aces separate, bogeys and double+), plus unit tests | S |
 | 3 | `roundStatsFromHoles(holes)`, a pure function giving the `roundStats` row from Played Holes, with unit tests (counts, null detail, par-3 fairways) | S |
 | 4 | `rounds.prefillPars` and its router tests (par file, then last Round, then null; 9-hole wrap; back nine) | S |
 | 5 | `rounds.create` with the transaction, plus router tests (derived score, `/courses` integration, rollback, validation) | M |
