@@ -4,8 +4,13 @@ import {
   movingAverage,
   calculateAggregates,
   getPresetDateRange,
+  buildStatsQueryInput,
 } from '@/lib/utils/stats';
-import type { RoundStatData, ChartDataPoint } from '@/lib/types/stats';
+import type {
+  RoundStatData,
+  ChartDataPoint,
+  FilterState,
+} from '@/lib/types/stats';
 
 // Local time, so date-fns' local-time formatting is timezone independent.
 const JAN_15_NOON = new Date(2026, 0, 15, 12).getTime();
@@ -167,5 +172,62 @@ describe('getPresetDateRange', () => {
 
   it.each(['all', 'bogus'])('%s starts at 2000-01-01 local time', (preset) => {
     expect(getPresetDateRange(preset).start).toEqual(new Date(2000, 0, 1));
+  });
+});
+
+describe('buildStatsQueryInput', () => {
+  function filters(overrides: Partial<FilterState> = {}): FilterState {
+    return {
+      mode: 'dateRange',
+      lastNRounds: 20,
+      datePreset: 'all',
+      startDate: null,
+      endDate: null,
+      excludeClubIds: [],
+      holeCountFilter: 'all',
+      ...overrides,
+    };
+  }
+
+  // Regression: rounds.timestamp is epoch ms; dates were once sent as seconds.
+  it('sends date range as epoch milliseconds', () => {
+    const input = buildStatsQueryInput(
+      'u1',
+      filters({
+        startDate: new Date(1748801764201),
+        endDate: new Date(1756577764201),
+      }),
+    );
+    expect(input.startDate).toBe(1748801764201);
+    expect(input.endDate).toBe(1756577764201);
+  });
+
+  it('lastN mode sends lastNRounds and ignores dates', () => {
+    const input = buildStatsQueryInput(
+      'u1',
+      filters({
+        mode: 'lastN',
+        lastNRounds: 10,
+        startDate: new Date(1748801764201),
+        endDate: new Date(1756577764201),
+      }),
+    );
+    expect(input).toEqual({ userId: 'u1', lastNRounds: 10, holeCountFilter: 'all' });
+  });
+
+  it('omits null dates and empty club exclusions', () => {
+    expect(buildStatsQueryInput('u1', filters())).toEqual({
+      userId: 'u1',
+      holeCountFilter: 'all',
+    });
+  });
+
+  it('passes through excluded clubs and hole count', () => {
+    const input = buildStatsQueryInput(
+      'u1',
+      filters({ excludeClubIds: ['c1', 'c2'], holeCountFilter: '9' }),
+    );
+    expect(input.excludeClubIds).toEqual(['c1', 'c2']);
+    expect(input.holeCountFilter).toBe('9');
   });
 });

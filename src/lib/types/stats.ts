@@ -23,9 +23,12 @@ export interface RoundStatData {
   bogeys: number | null;
 }
 
+export type DatePreset = '30d' | '90d' | 'ytd' | '1y' | 'all';
+
 export interface FilterState {
   mode: 'lastN' | 'dateRange';
   lastNRounds: number;
+  datePreset: DatePreset;
   startDate: Date | null;
   endDate: Date | null;
   excludeClubIds: string[];

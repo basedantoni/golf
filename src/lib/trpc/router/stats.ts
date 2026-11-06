@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 // Input schema for filtering
 const statsFilterSchema = z.object({
-  // Date range filter (Unix timestamps)
+  // Date range filter (epoch milliseconds — matches rounds.timestamp)
   startDate: z.number().optional(),
   endDate: z.number().optional(),
   // Last N rounds filter (takes precedence over date range if provided)

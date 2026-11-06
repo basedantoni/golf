@@ -10,6 +10,7 @@ import { StatsBarChart } from "./charts/stats-bar-chart";
 import {
   toChartData,
   calculateAggregates,
+  buildStatsQueryInput,
 } from "@/lib/utils/stats";
 import type { FilterState } from "@/lib/types/stats";
 
@@ -24,6 +25,7 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
   const [filters, setFilters] = useState<FilterState>({
     mode: "lastN",
     lastNRounds: 20,
+    datePreset: "all",
     startDate: null,
     endDate: null,
     excludeClubIds: [],
@@ -36,37 +38,10 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
   );
 
   // Build query input from filter state
-  const queryInput = useMemo(() => {
-    const input: {
-      userId: string;
-      lastNRounds?: number;
-      startDate?: number;
-      endDate?: number;
-      excludeClubIds?: string[];
-      holeCountFilter?: "all" | "9" | "18";
-    } = { userId };
-
-    if (filters.mode === "lastN") {
-      input.lastNRounds = filters.lastNRounds;
-    } else {
-      if (filters.startDate) {
-        input.startDate = Math.floor(filters.startDate.getTime() / 1000);
-      }
-      if (filters.endDate) {
-        input.endDate = Math.floor(filters.endDate.getTime() / 1000);
-      }
-    }
-
-    if (filters.excludeClubIds.length > 0) {
-      input.excludeClubIds = filters.excludeClubIds;
-    }
-
-    if (filters.holeCountFilter) {
-      input.holeCountFilter = filters.holeCountFilter;
-    }
-
-    return input;
-  }, [userId, filters]);
+  const queryInput = useMemo(
+    () => buildStatsQueryInput(userId, filters),
+    [userId, filters],
+  );
 
   // Fetch stats data
   const { data: roundStats } = useSuspenseQuery(

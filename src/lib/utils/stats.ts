@@ -1,5 +1,10 @@
 import { format } from "date-fns";
-import type { RoundStatData, ChartDataPoint } from "@/lib/types/stats";
+import type {
+  RoundStatData,
+  ChartDataPoint,
+  FilterState,
+} from "@/lib/types/stats";
+import type { StatsFilter } from "@/lib/trpc/router/stats";
 
 // Transform round data to chart format
 export function toChartData(
@@ -87,4 +92,27 @@ export function getPresetDateRange(preset: string): { start: Date; end: Date } {
   }
 
   return { start, end };
+}
+
+// Timestamps are epoch milliseconds end-to-end (matches rounds.timestamp).
+export function buildStatsQueryInput(
+  userId: string,
+  filters: FilterState,
+): StatsFilter {
+  const input: StatsFilter = {
+    userId,
+    holeCountFilter: filters.holeCountFilter,
+  };
+
+  if (filters.mode === "lastN") {
+    input.lastNRounds = filters.lastNRounds;
+  } else {
+    if (filters.startDate) input.startDate = filters.startDate.getTime();
+    if (filters.endDate) input.endDate = filters.endDate.getTime();
+  }
+
+  if (filters.excludeClubIds.length > 0) {
+    input.excludeClubIds = filters.excludeClubIds;
+  }
+  return input;
 }

@@ -6,7 +6,7 @@ import { RoundCountFilter } from './round-count-filter';
 import { DateRangeFilter } from './date-range-filter';
 import { ClubFilter } from './club-filter';
 import { HoleCountFilter } from './hole-count-filter';
-import type { FilterState } from '@/lib/types/stats';
+import type { DatePreset, FilterState } from '@/lib/types/stats';
 import { getPresetDateRange } from '@/lib/utils/stats';
 
 interface Club {
@@ -45,15 +45,12 @@ export function StatsFilters({
                 />
               ) : (
                 <DateRangeFilter
-                  value={
-                    filters.startDate && filters.endDate
-                      ? 'custom'
-                      : 'all'
-                  }
+                  value={filters.datePreset}
                   onChange={(preset) => {
                     const { start, end } = getPresetDateRange(preset);
                     onFilterChange({
                       ...filters,
+                      datePreset: preset as DatePreset,
                       startDate: start,
                       endDate: end,
                     });
