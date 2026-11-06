@@ -25,23 +25,14 @@ export const users = sqliteTable("users", {
 
 export const insertUserSchema = createInsertSchema(users);
 export const updateUserSchema = createUpdateSchema(users);
-export const selectUserSchema = createSelectSchema(users);
+const selectUserSchema = createSelectSchema(users);
 export const userIdSchema = selectUserSchema.pick({ id: true });
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
 
 // Golf Clubs/Courses
 export const clubs = sqliteTable("clubs", {
   id: text().primaryKey(),
   name: text().notNull(),
 });
-
-export const insertClubSchema = createInsertSchema(clubs);
-export const selectClubSchema = createSelectSchema(clubs);
-
-export type Club = typeof clubs.$inferSelect;
-export type NewClub = typeof clubs.$inferInsert;
 
 // Golf Rounds
 export const rounds = sqliteTable(
@@ -65,12 +56,6 @@ export const rounds = sqliteTable(
   }),
 );
 
-export const insertRoundSchema = createInsertSchema(rounds);
-export const selectRoundSchema = createSelectSchema(rounds);
-
-export type Round = typeof rounds.$inferSelect;
-export type NewRound = typeof rounds.$inferInsert;
-
 // Hole-by-hole strokes for each round
 export const roundHoles = sqliteTable(
   "round_holes",
@@ -88,12 +73,6 @@ export const roundHoles = sqliteTable(
     roundIdIdx: index("idx_round_holes_round_id").on(table.roundId),
   }),
 );
-
-export const insertRoundHoleSchema = createInsertSchema(roundHoles);
-export const selectRoundHoleSchema = createSelectSchema(roundHoles);
-
-export type RoundHole = typeof roundHoles.$inferSelect;
-export type NewRoundHole = typeof roundHoles.$inferInsert;
 
 // Round Statistics
 export const roundStats = sqliteTable("round_stats", {
@@ -134,12 +113,6 @@ export const roundStats = sqliteTable("round_stats", {
   strokeGainTeeToGreen: integer("stroke_gain_tee_to_green").default(100),
 });
 
-export const insertRoundStatsSchema = createInsertSchema(roundStats);
-export const selectRoundStatsSchema = createSelectSchema(roundStats);
-
-export type RoundStats = typeof roundStats.$inferSelect;
-export type NewRoundStats = typeof roundStats.$inferInsert;
-
 // Recommended stats for each round
 export const roundRecommendedStats = sqliteTable(
   "round_recommended_stats",
@@ -156,17 +129,6 @@ export const roundRecommendedStats = sqliteTable(
     roundIdIdx: index("idx_recommended_stats_round_id").on(table.roundId),
   }),
 );
-
-export const insertRoundRecommendedStatsSchema = createInsertSchema(
-  roundRecommendedStats,
-);
-export const selectRoundRecommendedStatsSchema = createSelectSchema(
-  roundRecommendedStats,
-);
-
-export type RoundRecommendedStats = typeof roundRecommendedStats.$inferSelect;
-export type NewRoundRecommendedStats =
-  typeof roundRecommendedStats.$inferInsert;
 
 // Club relationships
 export const userFollowedClubs = sqliteTable(
@@ -214,12 +176,3 @@ export const userPostedInClubs = sqliteTable(
   }),
 );
 
-export const insertUserFollowedClubSchema =
-  createInsertSchema(userFollowedClubs);
-export const insertUserPlayedClubSchema = createInsertSchema(userPlayedClubs);
-export const insertUserPostedInClubSchema =
-  createInsertSchema(userPostedInClubs);
-
-export type UserFollowedClub = typeof userFollowedClubs.$inferSelect;
-export type UserPlayedClub = typeof userPlayedClubs.$inferSelect;
-export type UserPostedInClub = typeof userPostedInClubs.$inferSelect;
