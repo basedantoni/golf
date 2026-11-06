@@ -49,5 +49,5 @@ next-env.d.ts
 *.sqlite
 *.sqlite3
 
-# personal seed data (contains PII) — required locally by db:seed, never commit
+# personal seed data (contains PII) — required locally by db:seed/db:reset, never commit
 data.json

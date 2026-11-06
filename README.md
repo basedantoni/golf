@@ -3,7 +3,7 @@
 Personal golf statistics dashboard built from a scoring-app data export.
 
 - **Stack**: Next.js 16 (App Router) + tRPC v11 + Drizzle ORM on libsql (SQLite) + shadcn/Radix UI + Recharts.
-- **Pages**: `/stats` (trends and summary stats with filters), `/courses` (best result per Hole on each Course).
+- **Pages**: `/stats` (trends and summary stats with filters), `/courses` (Best Result per Hole on each Course). `/` is the leftover starter page (user list).
 - **Vocabulary**: see [`GLOSSARY.md`](GLOSSARY.md). Decisions: [`docs/adr/`](docs/adr/).
 
 ## Prerequisites
@@ -31,7 +31,7 @@ Top-level keys the seed uses:
 - `clubData`: `playedClubs[]`, `followedClubs[]`, `postedInClubs[]`, each `{ clubId, name }`
 - `activityData.rounds[]`: `id`, `timestamp` (**epoch ms**), `clubId.id`, `score`, `strokes`, `holeStrokes[]`, `stats{...}` including `recommendedStats[]`
 
-The export has no per-hole par. Par for each Hole comes from [`src/lib/db/course-pars.json`](src/lib/db/course-pars.json) (see [ADR 0001](docs/adr/0001-par-on-played-hole.md)). A Course missing from that file seeds with Par Unknown holes. To propose pars for a new Course from its Rounds, run `pnpm tsx src/lib/db/solve-pars.ts`, then check the output against the scorecard.
+The export has no per-hole par. Par for each Hole comes from [`src/lib/db/course-pars.json`](src/lib/db/course-pars.json) (see [ADR 0001](docs/adr/0001-par-on-played-hole.md)). A Course missing from that file seeds with Par Unknown Holes. To propose pars for a new Course from its Rounds, run `pnpm tsx src/lib/db/solve-pars.ts`, then check the output against the scorecard.
 
 ## Scripts
 
