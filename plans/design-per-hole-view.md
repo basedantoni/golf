@@ -63,7 +63,7 @@ output: {
   club: { id, name },
   holes: { holeNumber, par, strokes, result: HoleResult | null,
            putts, fairway, gir }[],   // detail columns from round entry; null for imported Rounds
-  stats: RoundStatData['…'] | null,    // the derived-stats row, or null if the Round has no round_stats row
+  stats: ReturnType<typeof withDerivedStats> | null,  // same fields as a getRoundStats row; null if no round_stats row
 } | null                                // null when the Round doesn't exist or isn't this user's → page shows 404
 
 type HoleResult = 'eagleOrBetter' | 'birdie' | 'par' | 'bogey' | 'doubleOrWorse';
