@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { initTRPC } from '@trpc/server';
 import superjson from 'superjson';
-import { ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 
 /**
  * 1. CONTEXT
@@ -36,7 +36,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       data: {
         ...shape.data,
         zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+          error.cause instanceof ZodError ? z.flattenError(error.cause) : null,
       },
     };
   },
