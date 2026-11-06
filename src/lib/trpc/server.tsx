@@ -7,18 +7,16 @@ import type { AppRouter } from '@/lib/trpc/index';
 import { appRouter, createTRPCContext } from '@/lib/trpc/index';
 
 import { createQueryClient } from './query-client';
-import { headers } from 'next/headers';
+import { connection } from 'next/server';
 
 // IMPORTANT: Create a stable getter for the query client that
 //            will return the same client during the same request.
 export const getQueryClient = cache(createQueryClient);
 
+// Server components read the live database, so render per request, not at build time.
 const createContext = cache(async () => {
-  const heads = new Headers(await headers());
-  heads.set('x-trpc-source', 'rsc');
-  return createTRPCContext({
-    headers: heads,
-  });
+  await connection();
+  return createTRPCContext();
 });
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({

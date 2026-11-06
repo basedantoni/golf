@@ -173,14 +173,4 @@ export const statsRouter = {
 
       return playedClubs;
     }),
-
-  // Get summary/aggregate stats for the filtered data
-  getSummaryStats: publicProcedure
-    .input(statsFilterSchema)
-    .query(async () => {
-      // This reuses the getRoundStats logic internally
-      // For now, we'll calculate aggregates on the client
-      // This procedure could be expanded for server-side aggregation
-      return null;
-    }),
 } satisfies TRPCRouterRecord;

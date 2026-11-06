@@ -22,8 +22,6 @@ export const userRouter = {
       .where(eq(users.id, input.id as string));
   }),
   delete: publicProcedure.input(userIdSchema).mutation(({ ctx, input }) => {
-    console.log('deleting user', input);
-    console.log('users', users.id);
     try {
       return ctx.db.delete(users).where(eq(users.id, input.id));
     } catch (error) {

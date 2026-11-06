@@ -70,7 +70,6 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
     () => toChartData(roundStats, "puttsPerRound"),
     [roundStats],
   );
-  console.log("Putts Chart Data", puttsChartData);
 
   const scoreChartData = useMemo(
     () => toChartData(roundStats, "score"),

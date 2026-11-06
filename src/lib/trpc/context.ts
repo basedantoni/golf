@@ -15,10 +15,7 @@ import { ZodError } from 'zod';
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const source = opts.headers.get('x-trpc-source') ?? 'unknown';
-  console.log(`>>> tRPC Request from: ${source}`);
-
+export const createTRPCContext = async () => {
   return {
     db,
   };
