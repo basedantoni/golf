@@ -41,6 +41,10 @@ describe('user.update', () => {
     await expect(caller.user.update({ name: 'Nobody' })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
+  it('rejects an update with nothing to change at validation', async () => {
+    await expect(caller.user.update({ id: noRounds.id })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+  });
+
   it('changes the given fields and leaves the rest intact', async () => {
     await caller.user.update({ id: noRounds.id, name: 'Renamed' });
     const [row] = await db.select().from(users).where(eq(users.id, noRounds.id));

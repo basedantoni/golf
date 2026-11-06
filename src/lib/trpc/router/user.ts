@@ -8,6 +8,11 @@ import {
 } from '@/lib/db/schema';
 import { DrizzleQueryError, eq } from 'drizzle-orm';
 
+// SQLite refuses to delete a row other rows still reference.
+const isForeignKeyViolation = (error: unknown) =>
+  error instanceof DrizzleQueryError &&
+  (error.cause as { code?: string } | undefined)?.code === 'SQLITE_CONSTRAINT_FOREIGNKEY';
+
 export const userRouter = {
   all: publicProcedure.query(({ ctx }) => {
     return ctx.db.select().from(users);
@@ -16,7 +21,11 @@ export const userRouter = {
     return ctx.db.insert(users).values(input);
   }),
   update: publicProcedure
-    .input(updateUserSchema.required({ id: true }))
+    .input(
+      updateUserSchema
+        .required({ id: true })
+        .refine((input) => Object.entries(input).some(([key, v]) => key !== 'id' && v !== undefined), 'Nothing to update'),
+    )
     .mutation(({ ctx, input }) => {
       // id selects the row; it is never part of the update itself
       const { id, ...data } = input;
@@ -26,8 +35,8 @@ export const userRouter = {
     try {
       return await ctx.db.delete(users).where(eq(users.id, input.id));
     } catch (error) {
-      // Rounds reference the user; SQLite refuses rather than orphaning them.
-      if (error instanceof DrizzleQueryError && (error.cause as { code?: string })?.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
+      // The user's Rounds reference them; refuse rather than orphan the history.
+      if (isForeignKeyViolation(error)) {
         throw new TRPCError({
           code: 'CONFLICT',
           message: 'Cannot delete user: user has existing rounds',
