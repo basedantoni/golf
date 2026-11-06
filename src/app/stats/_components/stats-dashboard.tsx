@@ -55,24 +55,14 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
     [roundStats],
   );
 
-  // Prepare chart data
-  const fairwayChartData = useMemo(
-    () => toChartData(roundStats, "fairwayHitPct"),
-    [roundStats],
-  );
-
-  const girChartData = useMemo(
-    () => toChartData(roundStats, "girPct"),
-    [roundStats],
-  );
-
-  const puttsChartData = useMemo(
-    () => toChartData(roundStats, "puttsPerRound"),
-    [roundStats],
-  );
-
-  const scoreChartData = useMemo(
-    () => toChartData(roundStats, "score"),
+  // Chart series
+  const series = useMemo(
+    () => ({
+      fairway: toChartData(roundStats, "fairwayHitPct"),
+      gir: toChartData(roundStats, "girPct"),
+      putts: toChartData(roundStats, "puttsPerRound"),
+      score: toChartData(roundStats, "score"),
+    }),
     [roundStats],
   );
 
@@ -137,7 +127,7 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
       <div className="grid gap-6 md:grid-cols-2">
         <StatsLineChart
           title="Fairway Hit %"
-          data={fairwayChartData}
+          data={series.fairway}
           color="#22c55e"
           unit="%"
           yDomain={[0, 100]}
@@ -146,7 +136,7 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
 
         <StatsLineChart
           title="Greens in Regulation %"
-          data={girChartData}
+          data={series.gir}
           color="#3b82f6"
           unit="%"
           yDomain={[0, 100]}
@@ -155,14 +145,14 @@ export function StatsDashboard({ userId }: StatsDashboardProps) {
 
         <StatsLineChart
           title="Putts per Round"
-          data={puttsChartData}
+          data={series.putts}
           color="#8b5cf6"
           targetValue={32}
         />
 
         <StatsLineChart
           title="Score Trend"
-          data={scoreChartData}
+          data={series.score}
           color="#f59e0b"
         />
 

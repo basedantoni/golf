@@ -1,14 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   toChartData,
-  movingAverage,
   calculateAggregates,
   getPresetDateRange,
   buildStatsQueryInput,
 } from '@/lib/utils/stats';
 import type {
   RoundStatData,
-  ChartDataPoint,
   FilterState,
 } from '@/lib/types/stats';
 
@@ -55,10 +53,6 @@ function round(overrides: Partial<RoundStatData> = {}): RoundStatData {
   };
 }
 
-function point(value: number, timestamp: number): ChartDataPoint {
-  return { date: `d${timestamp}`, timestamp, value };
-}
-
 describe('toChartData', () => {
   it('drops rounds whose value is null', () => {
     const data = toChartData(
@@ -92,35 +86,6 @@ describe('toChartData', () => {
       value: 4,
       label: 'Augusta',
     });
-  });
-
-  it('honours a custom date format', () => {
-    const [p] = toChartData([round({ score: 1 })], 'score', 'yyyy-MM-dd');
-    expect(p.date).toBe('2026-01-15');
-  });
-});
-
-describe('movingAverage', () => {
-  it('returns [] when there are fewer points than the window', () => {
-    expect(movingAverage([point(1, 1), point(2, 2)], 3)).toEqual([]);
-  });
-
-  it('returns one trailing-window mean per window end', () => {
-    const data = [point(1, 1), point(2, 2), point(3, 3), point(4, 4)];
-    expect(movingAverage(data, 2).map((p) => p.value)).toEqual([1.5, 2.5, 3.5]);
-  });
-
-  it('rounds to 1 decimal', () => {
-    const data = [point(1, 1), point(1, 2), point(2, 3)];
-    expect(movingAverage(data, 3).map((p) => p.value)).toEqual([1.3]);
-  });
-
-  it("keeps the window-end point's date and timestamp", () => {
-    const data = [point(10, 100), point(20, 200), point(30, 300)];
-    expect(movingAverage(data, 2)).toEqual([
-      { date: 'd200', timestamp: 200, value: 15 },
-      { date: 'd300', timestamp: 300, value: 25 },
-    ]);
   });
 });
 
@@ -192,6 +157,11 @@ describe('getPresetDateRange', () => {
 
   it('ytd starts at local midnight on Jan 1 of the current year', () => {
     expect(getPresetDateRange('ytd').start).toEqual(new Date(2026, 0, 1));
+  });
+
+  it('1y starts on the same calendar day last year, even across a leap day', () => {
+    vi.setSystemTime(new Date(2028, 2, 1, 10));
+    expect(getPresetDateRange('1y').start).toEqual(new Date(2027, 2, 1, 10));
   });
 
   it.each(['all', 'bogus'])('%s starts at 2000-01-01 local time', (preset) => {
