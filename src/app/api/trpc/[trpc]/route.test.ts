@@ -19,7 +19,8 @@ describe('tRPC error shape', () => {
   });
 
   it('has no zodError for non-validation errors', async () => {
-    const { body } = await query('stats.noSuchProcedure', {});
+    const { status, body } = await query('stats.noSuchProcedure', {});
+    expect(status).toBe(404);
     expect(body.error.json.data.zodError).toBeNull();
   });
 });
