@@ -19,7 +19,7 @@ after plan 001; `pnpm test` exists only after plan 003.
 | 002 | Patch vulnerable deps, fix ignored pnpm overrides | P1 | S | 001 | DONE (audit drifted to 41 advisories → scope expanded, approved: next 16.4.3, zod 4, nanoid; audit now clean) |
 | 003 | Test baseline with Vitest (stats utils + router) | P1 | M | 001 | DONE (38 tests; router matched every planned case, no discrepancies) |
 | 004 | Fix broken date-range filter (ms/s mismatch) | P1 | S | 003 | DONE (require already gone via 001; presets verified via router vs local.db — seed drifted to 125 rounds: 30d=2, 90d=15, ytd=74, 1y=95, all=125; browser check of Select label still pending) |
-| 005 | Hole-count filter → single SQL subquery | P2 | S | 003 | TODO |
+| 005 | Hole-count filter → single SQL subquery | P2 | S | 003 | DONE (KOI-152; optional Step 3 skipped — cross-user case already covered by existing test; 9-hole filter on local.db: 2 statements → 1, same 90 rounds) |
 | 006 | Normalized putts-per-round in chart + summary | P2 | S | 003, 004 | DONE (STOP hit: data.json has puttHoleCount 0 on all rounds → seed.ts falls back to holeStrokes.length when putts > 0, approved; default view now 30–40 near target; partial-tracking rounds under-normalize (7 dataset-wide < 20, 2 in default view); 17 untracked (0-putt) rounds now omitted instead of plotted as 0) |
 | 007 | Remove wildcard CORS, fix user update/delete | P2 | S | 003 | TODO |
 | 008 | Delete dead code/logs, fix README + gitignore | P2 | S | — (cleanest after 004–007) | TODO |
