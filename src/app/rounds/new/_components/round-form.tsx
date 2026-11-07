@@ -19,17 +19,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OptionSelect } from "@/app/stats/_components/option-select";
-import { createRoundInput } from "@/lib/utils/round-entry";
+import { createRoundInput, FAIRWAYS, GIRS } from "@/lib/utils/round-entry";
 
 const NEW_CLUB = "new";
-const FAIRWAYS = [
-  ["hit", "Hit"],
-  ["left", "Left"],
-  ["right", "Right"],
-  ["short", "Short"],
-  ["long", "Long"],
-] as const;
-const GIRS = [...FAIRWAYS, ["noChance", "No chance"]] as const;
+const LABELS: Record<(typeof GIRS)[number], string> = {
+  hit: "Hit",
+  left: "Left",
+  right: "Right",
+  short: "Short",
+  long: "Long",
+  noChance: "No chance",
+};
 
 const inputClass =
   "h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-xs";
@@ -38,7 +38,7 @@ const inputClass =
 type Row = { par?: string; strokes?: string; putts?: string; fairway?: string; gir?: string };
 
 const toNumber = (s?: string) => (s ? Number(s) : null);
-const toPar = (score: number) => (score === 0 ? "E" : score > 0 ? `+${score}` : `${score}`);
+const formatScore = (score: number) => (score === 0 ? "E" : score > 0 ? `+${score}` : `${score}`);
 
 export function RoundForm({ userId }: { userId: string }) {
   const trpc = useTRPC();
@@ -97,9 +97,11 @@ export function RoundForm({ userId }: { userId: string }) {
   const scored = holes.filter((h) => h.strokes !== null && h.par !== null);
   const strokes = scored.reduce((sum, h) => sum + h.strokes!, 0);
   const par = scored.reduce((sum, h) => sum + h.par!, 0);
-  const fullyLogged = holes.every(
-    (h) => h.gir && h.putts !== null && (h.par === 3 || h.fairway),
-  );
+  // Same test as /stats' "Fully logged rounds only" filter
+  const fullyLogged =
+    holes.every((h) => h.gir) &&
+    holes.some((h) => h.fairway && h.par !== 3) &&
+    holes.reduce((sum, h) => sum + (h.putts ?? 0), 0) >= holes.length;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -310,14 +312,14 @@ export function RoundForm({ userId }: { userId: string }) {
       </div>
 
       <p className="text-lg font-medium">
-        {scored.length ? `${strokes} (${toPar(strokes - par)})` : "No strokes yet"}
+        {scored.length ? `${strokes} (${formatScore(strokes - par)})` : "No strokes yet"}
       </p>
 
       {!fullyLogged && (
         <p className="text-sm text-muted-foreground">
-          Without putts, fairways and greens on every Hole, this Round shows on
-          Courses but stays hidden on Stats while &quot;Fully logged rounds
-          only&quot; is on.
+          Without fairways, greens on every Hole and a putt per Hole, this
+          Round shows on Courses but stays hidden on Stats while &quot;Fully
+          logged rounds only&quot; is on.
         </p>
       )}
 
@@ -339,7 +341,7 @@ function DetailSelect({
   onChange,
 }: {
   label: string;
-  options: readonly (readonly [string, string])[];
+  options: readonly (keyof typeof LABELS)[];
   value?: string;
   onChange: (value: string) => void;
 }) {
@@ -351,9 +353,9 @@ function DetailSelect({
       onChange={(e) => onChange(e.target.value)}
     >
       <option value="">—</option>
-      {options.map(([v, l]) => (
+      {options.map((v) => (
         <option key={v} value={v}>
-          {l}
+          {LABELS[v]}
         </option>
       ))}
     </select>

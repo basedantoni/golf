@@ -90,9 +90,10 @@ describe('rounds.create', () => {
     ['a nine starting on Played Hole 2', entered(HANCOCK_PARS, HANCOCK_PARS, 2)],
     ['an 18 starting on Played Hole 10', entered(Array(18).fill(4), Array(18).fill(4), 10)],
     ['a repeated Played Hole', entered(HANCOCK_PARS, HANCOCK_PARS).map((h, i) => (i === 8 ? { ...h, holeNumber: 1 } : h))],
+    ['a Round in the future', entered(HANCOCK_PARS, HANCOCK_PARS), Date.now() + 2 * 86_400_000],
     ['a missing Par', entered(HANCOCK_PARS, [...HANCOCK_PARS.slice(0, 8), null as unknown as number])],
-  ])('rejects %s', async (_, holes) => {
-    await expect(caller.rounds.create({ userId: 'a', club: { id: HANCOCK }, timestamp: 1000, holes })).rejects.toThrow();
+  ])('rejects %s', async (_, holes, timestamp = 1000) => {
+    await expect(caller.rounds.create({ userId: 'a', club: { id: HANCOCK }, timestamp, holes })).rejects.toThrow();
   });
 
   it('writes nothing when any insert fails', async () => {
@@ -102,7 +103,8 @@ describe('rounds.create', () => {
       caller.rounds.create({ userId: 'nobody', club: { name: 'Ghost', holeCount: 9 }, timestamp: 1000, holes }),
     ).rejects.toThrow();
 
-    const [{ n }] = await db.select({ n: count() }).from(clubs);
-    expect(n).toBe(1);
+    const rows = async (table: typeof clubs | typeof courseHoles) => (await db.select({ n: count() }).from(table))[0].n;
+    expect(await rows(clubs)).toBe(1);
+    expect(await rows(courseHoles)).toBe(HANCOCK_PARS.length);
   });
 });

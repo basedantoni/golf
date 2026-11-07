@@ -8,6 +8,7 @@ import {
   index,
 } from "drizzle-orm/sqlite-core";
 import { nanoid } from "nanoid";
+import { FAIRWAYS, GIRS } from "@/lib/utils/round-entry";
 import {
   createSelectSchema,
   createInsertSchema,
@@ -90,8 +91,8 @@ export const roundHoles = sqliteTable(
     par: integer(),
     // Optional detail, null = not logged. No fairway on par 3s.
     putts: integer(),
-    fairway: text({ enum: ["hit", "left", "right", "short", "long"] }),
-    gir: text({ enum: ["hit", "left", "right", "short", "long", "noChance"] }),
+    fairway: text({ enum: FAIRWAYS }),
+    gir: text({ enum: GIRS }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.roundId, table.holeNumber] }),

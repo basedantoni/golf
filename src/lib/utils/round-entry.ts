@@ -2,7 +2,8 @@
 // round_stats row derived from its Played Holes. Terms: GLOSSARY.md.
 import { z } from "zod";
 
-const miss = ["left", "right", "short", "long"] as const;
+export const FAIRWAYS = ["hit", "left", "right", "short", "long"] as const;
+export const GIRS = [...FAIRWAYS, "noChance"] as const;
 
 const enteredHole = z
   .object({
@@ -10,8 +11,8 @@ const enteredHole = z
     par: z.number().int().min(3).max(6),
     strokes: z.number().int().min(1).max(15),
     putts: z.number().int().min(0).max(9).nullable(),
-    fairway: z.enum(["hit", ...miss]).nullable(),
-    gir: z.enum(["hit", ...miss, "noChance"]).nullable(),
+    fairway: z.enum(FAIRWAYS).nullable(),
+    gir: z.enum(GIRS).nullable(),
   })
   // Par 3s have no fairway, even if one was picked before the Par was edited.
   .transform((h) => (h.par === 3 ? { ...h, fairway: null } : h));
@@ -25,7 +26,8 @@ export const createRoundInput = z.object({
     z.object({ id: z.string() }),
     z.object({ name: z.string().trim().min(1), holeCount: z.union([z.literal(9), z.literal(18)]) }),
   ]),
-  timestamp: z.number().int(), // epoch ms, like rounds.timestamp
+  // epoch ms, like rounds.timestamp; a day of slack for local noon in any time zone
+  timestamp: z.number().int().refine((t) => t <= Date.now() + 86_400_000, "A Round can't be in the future"),
   holes: z.array(enteredHole).refine((holes) => {
     const nums = holes.map((h) => h.holeNumber).sort((a, b) => a - b);
     const start = nums[0];
