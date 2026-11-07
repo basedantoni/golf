@@ -1,22 +1,32 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { HydrateClient, prefetch, trpc } from '@/lib/trpc/server';
+import { DEFAULT_USER_ID } from '@/lib/user';
+import { buttonVariants } from '@/components/ui/button';
 import { CourseHoles } from './_components/course-holes';
 
-// For now, hardcode user ID - this would come from auth in real app
-const DEFAULT_USER_ID = '5a4221d0-82cf-11f0-ac33-021d58ec5439';
-
-export default async function CoursesPage() {
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ club?: string }>;
+}) {
+  const { club } = await searchParams;
   prefetch(trpc.courses.list.queryOptions({ userId: DEFAULT_USER_ID }));
 
   return (
     <HydrateClient>
       <main className="container mx-auto py-8 px-4">
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-            <p className="text-muted-foreground">
-              Every Hole you&apos;ve made par or better on, per Course
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
+              <p className="text-muted-foreground">
+                Every Hole you&apos;ve made par or better on, per Course
+              </p>
+            </div>
+            <Link href="/rounds/new" className={buttonVariants()}>
+              New round
+            </Link>
           </div>
 
           <Suspense
@@ -26,7 +36,7 @@ export default async function CoursesPage() {
               </div>
             }
           >
-            <CourseHoles userId={DEFAULT_USER_ID} />
+            <CourseHoles userId={DEFAULT_USER_ID} initialClubId={club} />
           </Suspense>
         </div>
       </main>

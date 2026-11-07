@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { HydrateClient, prefetch, trpc } from '@/lib/trpc/server';
+import { DEFAULT_USER_ID } from '@/lib/user';
+import { buttonVariants } from '@/components/ui/button';
 import { StatsDashboard } from './_components/stats-dashboard';
-
-// For now, hardcode user ID - this would come from auth in real app
-const DEFAULT_USER_ID = '5a4221d0-82cf-11f0-ac33-021d58ec5439';
 
 export default async function StatsPage() {
   // Prefetch initial data
@@ -19,13 +19,18 @@ export default async function StatsPage() {
     <HydrateClient>
       <main className="container mx-auto py-8 px-4">
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Golf Statistics
-            </h1>
-            <p className="text-muted-foreground">
-              Track your performance and identify areas for improvement
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Golf Statistics
+              </h1>
+              <p className="text-muted-foreground">
+                Track your performance and identify areas for improvement
+              </p>
+            </div>
+            <Link href="/rounds/new" className={buttonVariants()}>
+              New round
+            </Link>
           </div>
 
           <Suspense
