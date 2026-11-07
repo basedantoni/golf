@@ -25,14 +25,17 @@ const BEST_RESULT: Record<BestResult, { label: string; className: string; cellCl
 
 interface CourseHolesProps {
   userId: string;
+  initialClubId?: string;
 }
 
-export function CourseHoles({ userId }: CourseHolesProps) {
+export function CourseHoles({ userId, initialClubId }: CourseHolesProps) {
   const trpc = useTRPC();
   const { data: courses } = useSuspenseQuery(
     trpc.courses.list.queryOptions({ userId }),
   );
-  const [clubId, setClubId] = useState(courses[0]?.id ?? "");
+  const [clubId, setClubId] = useState(
+    courses.find((c) => c.id === initialClubId)?.id ?? courses[0]?.id ?? "",
+  );
 
   if (courses.length === 0) {
     return <div className="text-muted-foreground">No rounds played yet.</div>;

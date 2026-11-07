@@ -1,7 +1,6 @@
 import { TRPCRouterRecord } from '@trpc/server';
 import { publicProcedure } from '@/lib/trpc/context';
-import { rounds, clubs, roundHoles } from '@/lib/db/schema';
-import { courseParEntry } from '@/lib/db/round-pars';
+import { rounds, clubs, roundHoles, courseHoles } from '@/lib/db/schema';
 import { courseProgress, summarizeHoles } from '@/lib/utils/course-holes';
 import { eq, and, desc, count } from 'drizzle-orm';
 import { z } from 'zod';
@@ -20,6 +19,18 @@ export const coursesRouter = {
         .orderBy(desc(count()), clubs.name);
     }),
 
+  // Usual Par per Hole (null = Par Unknown); length is the Course's hole count
+  usualPars: publicProcedure
+    .input(z.object({ clubId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const holes = await ctx.db
+        .select({ par: courseHoles.par })
+        .from(courseHoles)
+        .where(eq(courseHoles.clubId, input.clubId))
+        .orderBy(courseHoles.holeNumber);
+      return holes.map((h) => h.par);
+    }),
+
   // Best Result and counts per Hole of one Course, over all the user's Rounds there
   holeResults: publicProcedure
     .input(z.object({ userId: z.string(), clubId: z.string() }))
@@ -32,9 +43,12 @@ export const coursesRouter = {
         .innerJoin(rounds, eq(roundHoles.roundId, rounds.id))
         .where(and(eq(rounds.userId, input.userId), eq(rounds.clubId, input.clubId)));
 
-      // The par file knows the Course's hole count; without an entry, assume no Round wrapped around.
-      const course = courseParEntry(input.clubId);
-      const holeCount = course?.pars.length ?? Math.max(0, ...playedHoles.map((h) => h.holeNumber));
+      // course_holes knows the Course's hole count; without rows, assume no Round wrapped around.
+      const [{ courseHoleCount }] = await ctx.db
+        .select({ courseHoleCount: count() })
+        .from(courseHoles)
+        .where(eq(courseHoles.clubId, input.clubId));
+      const holeCount = courseHoleCount || Math.max(0, ...playedHoles.map((h) => h.holeNumber));
       const holes = summarizeHoles(playedHoles, holeCount);
 
       return {

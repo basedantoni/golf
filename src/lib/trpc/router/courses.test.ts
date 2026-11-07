@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createCaller } from '@/lib/trpc';
 import { createTestDb } from '@/lib/db/test-helpers';
-import { users, clubs, rounds, roundHoles } from '@/lib/db/schema';
+import { users, clubs, courseHoles, rounds, roundHoles } from '@/lib/db/schema';
 
 type TestDb = Awaited<ReturnType<typeof createTestDb>>;
 
-// Real Hancock id: course-pars.json says it is a 9-hole Course.
+// Hancock is a 9-hole Course.
 const HANCOCK = '8ae88a70-86ac-11e4-8c28-020000005b00';
 const HANCOCK_PARS = [4, 4, 4, 4, 3, 5, 4, 3, 4];
 
@@ -21,6 +21,7 @@ beforeEach(async () => {
     { id: 'b', name: 'B', age: 30, email: 'b@test.dev' },
   ]);
   await db.insert(clubs).values([{ id: HANCOCK, name: 'Hancock Golf Course' }]);
+  await db.insert(courseHoles).values(HANCOCK_PARS.map((par, i) => ({ clubId: HANCOCK, holeNumber: i + 1, par })));
   await db.insert(rounds).values([
     { id: 'nine', userId: 'a', clubId: HANCOCK, timestamp: 1, score: 0, strokes: 35 },
     { id: 'eighteen', userId: 'a', clubId: HANCOCK, timestamp: 2, score: 0, strokes: 70 },

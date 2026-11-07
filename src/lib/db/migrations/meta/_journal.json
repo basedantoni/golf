@@ -22,6 +22,13 @@
       "when": 1793939125736,
       "tag": "0002_legal_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794024917722,
+      "tag": "0003_bizarre_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

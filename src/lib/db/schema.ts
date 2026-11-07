@@ -30,15 +30,36 @@ export const userIdSchema = selectUserSchema.pick({ id: true });
 
 // Golf Clubs/Courses
 export const clubs = sqliteTable("clubs", {
-  id: text().primaryKey(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
   name: text().notNull(),
 });
+
+// A Course's Holes; row count is its hole count. Usual Par null = Par Unknown. See ADR 0002.
+export const courseHoles = sqliteTable(
+  "course_holes",
+  {
+    clubId: text("club_id")
+      .notNull()
+      .references(() => clubs.id),
+    holeNumber: integer("hole_number").notNull(),
+    par: integer(),
+    // Other pars this Hole plays to, depending on tee (Usual Par is always tried too)
+    variantPars: text("variant_pars", { mode: "json" }).$type<number[]>(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.clubId, table.holeNumber] }),
+  }),
+);
 
 // Golf Rounds
 export const rounds = sqliteTable(
   "rounds",
   {
-    id: text().primaryKey(),
+    id: text()
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
     userId: text("user_id")
       .notNull()
       .references(() => users.id),
@@ -67,6 +88,10 @@ export const roundHoles = sqliteTable(
     strokes: integer().notNull(),
     // Par as played that day (tee variants differ); null = Par Unknown. See ADR 0001.
     par: integer(),
+    // Optional detail, null = not logged. No fairway on par 3s.
+    putts: integer(),
+    fairway: text({ enum: ["hit", "left", "right", "short", "long"] }),
+    gir: text({ enum: ["hit", "left", "right", "short", "long", "noChance"] }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.roundId, table.holeNumber] }),

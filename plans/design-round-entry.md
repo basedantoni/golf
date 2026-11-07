@@ -6,6 +6,21 @@
 > - **The par decision is already made.** [ADR 0001](../docs/adr/0001-par-on-played-hole.md) puts Par on each Played Hole (`round_holes.par`), with Usual Pars and tee variants in `src/lib/db/course-pars.json`. So the "no par data anywhere" gap no longer exists.
 > - **The form stack is gone.** `react-hook-form`, `@hookform/resolvers` and `components/ui/form.tsx` are removed by PR #5 (KOI-357), so this design doesn't assume them.
 
+## Decisions (maintainer, 2026-11-06)
+
+The maintainer picked **(c)** and accepted every §5 recommendation except Q8:
+
+- **Q8 changed.** Usual Pars move into the database, in a new `course_holes` table (one row per Hole, with Usual Par and tee variants). `course-pars.json` becomes seed input only. See [ADR 0002](../docs/adr/0002-usual-pars-in-database.md).
+  - This changes Q11. A new Club's Course is created with 9 or 18 Par Unknown `course_holes` rows, so there is no `clubs.holeCount` column.
+  - It also changes the prefill. The first Round entered at a new Course fills its Usual Pars, so the "most recent Round at this Club" fallback was dropped.
+  - Prefill is `courses.usualPars({ clubId })`, which returns the Usual Par per Hole. The form folds it onto the Played Holes. It replaces `rounds.prefillPars`.
+- **Built as designed otherwise:**
+  - `rounds.create` runs in one transaction and returns `{ id, clubId }`.
+  - Optional per-hole putts, fairway and GIR.
+  - `/rounds/new` uses plain React state plus `createRoundInput` (`src/lib/utils/round-entry.ts`).
+  - "New round" links on `/stats` and `/courses`. After saving, the form goes to `/courses?club=…`.
+- **Test database.** `createTestDb` now uses a temp file. A libsql `:memory:` client hands its connection to `transaction()` and reopens empty afterwards.
+
 Terms follow [`GLOSSARY.md`](../GLOSSARY.md): Course, Club, Hole, Played Hole, Par, Usual Par, Round, Result.
 
 ## Evidence: what `score` and `strokes` mean

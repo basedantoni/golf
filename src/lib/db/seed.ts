@@ -4,6 +4,7 @@ import { db } from '.';
 import {
   users,
   clubs,
+  courseHoles,
   rounds,
   roundHoles,
   roundStats,
@@ -12,11 +13,13 @@ import {
   userPlayedClubs,
   userPostedInClubs,
 } from './schema';
-import { courseParEntry, parsForRound } from './round-pars';
+import { parsForRound, type CourseParEntry } from './round-pars';
+import coursePars from './course-pars.json';
 
 // Read data.json
 const dataPath = join(process.cwd(), 'data.json');
 const golfData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+const courseParEntry = (clubId: string) => (coursePars as Record<string, CourseParEntry>)[clubId];
 
 const seedClubs = async () => {
   console.log('  📍 Seeding clubs...');
@@ -29,6 +32,23 @@ const seedClubs = async () => {
     await db.insert(clubs).values(club);
   }
   console.log(`  ✅ Seeded ${clubsToInsert.length} clubs`);
+};
+
+// course-pars.json is the seed input for Usual Pars; the app reads course_holes. See ADR 0002.
+const seedCourseHoles = async () => {
+  console.log('  🕳️  Seeding course holes...');
+  const entries = Object.entries(coursePars as Record<string, CourseParEntry>);
+  for (const [clubId, entry] of entries) {
+    await db.insert(courseHoles).values(
+      entry.pars.map((par, i) => ({
+        clubId,
+        holeNumber: i + 1,
+        par,
+        variantPars: entry.variants?.[i + 1] ?? null,
+      })),
+    );
+  }
+  console.log(`  ✅ Seeded holes for ${entries.length} courses`);
 };
 
 const seedUser = async () => {
@@ -157,6 +177,7 @@ const seedRounds = async (userId: string) => {
 
 export const seed = async () => {
   await seedClubs();
+  await seedCourseHoles();
   const userId = await seedUser();
   await seedUserClubRelationships(userId);
   await seedRounds(userId);

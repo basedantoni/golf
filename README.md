@@ -3,7 +3,7 @@
 Personal golf statistics dashboard built from a scoring-app data export.
 
 - **Stack**: Next.js 16 (App Router) + tRPC v11 + Drizzle ORM on libsql (SQLite) + shadcn/Radix UI + Recharts.
-- **Pages**: `/stats` (trends and summary stats with filters), `/courses` (Best Result per Hole on each Course). `/` is the leftover starter page (user list).
+- **Pages**: `/stats` (trends and summary stats with filters), `/courses` (Best Result per Hole on each Course), `/rounds/new` (enter a Round hole by hole). `/` is the leftover starter page (user list).
 - **Vocabulary**: see [`GLOSSARY.md`](GLOSSARY.md). Decisions: [`docs/adr/`](docs/adr/).
 
 ## Prerequisites
@@ -31,7 +31,7 @@ Top-level keys the seed uses:
 - `clubData`: `playedClubs[]`, `followedClubs[]`, `postedInClubs[]`, each `{ clubId, name }`
 - `activityData.rounds[]`: `id`, `timestamp` (**epoch ms**), `clubId.id`, `score`, `strokes`, `holeStrokes[]`, `stats{...}` including `recommendedStats[]`
 
-The export has no per-hole par. Par for each Hole comes from [`src/lib/db/course-pars.json`](src/lib/db/course-pars.json) (see [ADR 0001](docs/adr/0001-par-on-played-hole.md)). A Course missing from that file seeds with Par Unknown Holes. To propose pars for a new Course from its Rounds, run `pnpm tsx src/lib/db/solve-pars.ts`, then check the output against the scorecard.
+The export has no per-hole par. Usual Pars are seeded from [`src/lib/db/course-pars.json`](src/lib/db/course-pars.json) into the `course_holes` table, which is what the app reads (see [ADR 0001](docs/adr/0001-par-on-played-hole.md) and [ADR 0002](docs/adr/0002-usual-pars-in-database.md)). A Course missing from that file seeds with Par Unknown Holes. To propose pars for a new Course from its Rounds, run `pnpm tsx src/lib/db/solve-pars.ts`, then check the output against the scorecard.
 
 ## Scripts
 
@@ -47,10 +47,11 @@ The export has no per-hole par. Par for each Hole comes from [`src/lib/db/course
 | `pnpm db:generate` | Generate a migration from `src/lib/db/schema.ts` |
 | `pnpm db:migrate` | Apply migrations to `DATABASE_URL` |
 | `pnpm db:seed` | Seed from `data.json` (into an empty, migrated db) |
-| `pnpm db:reset` | Drop all tables, migrate, and seed |
+| `pnpm db:reset` | Drop all tables, migrate, and seed. **Deletes Rounds entered in the app** |
 | `pnpm db:studio` | Drizzle Studio database browser |
 | `pnpm clean` | Delete `.next` and `node_modules` |
 
 ## Notes
 
-- The app serves a single hardcoded user (`DEFAULT_USER_ID` in `src/app/stats/page.tsx` and `src/app/courses/page.tsx`). Auth is future work.
+- The app serves a single hardcoded user (`DEFAULT_USER_ID` in `src/lib/user.ts`). Auth is future work.
+- Rounds entered at `/rounds/new`, and any Clubs and Usual Pars they created, exist only in the database. `pnpm db:reset` rebuilds from `data.json` and `course-pars.json` alone, so it deletes them. Rounds can't be edited or deleted in the app yet.
