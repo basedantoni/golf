@@ -19,6 +19,11 @@ The maintainer picked **(c)** and accepted every §5 recommendation except Q8:
   - Optional per-hole putts, fairway and GIR.
   - `/rounds/new` uses plain React state plus `createRoundInput` (`src/lib/utils/round-entry.ts`).
   - "New round" links on `/stats` and `/courses`. After saving, the form goes to `/courses?club=…`.
+- **Entry layout, settled by a UI prototype.** The prototype is on the local branch `prototype/koi-146-round-entry-ui`. Of its four variants, the maintainer picked two, one per device:
+  - **Mobile, below `md`:** hole by hole. Big −/+ buttons for strokes, starting at par. Putt buttons and a direction pad for fairway and green, plus a strip for jumping between holes. This is for entering on the course.
+  - **Desktop:** a paper-style scorecard, with Out/In totals, results circled or boxed, and Fairway/GIR cells you click to cycle through values. This is for copying a card after the round.
+
+  CSS switches between the two (`md:hidden` / `hidden md:block`). Both edit the same draft (`use-round-draft.ts`), so resizing keeps what's entered. The plain table and the quick-type variant were dropped.
 - **Test database.** `createTestDb` now uses a temp file. A libsql `:memory:` client hands its connection to `transaction()` and reopens empty afterwards.
 
 Terms follow [`GLOSSARY.md`](../GLOSSARY.md): Course, Club, Hole, Played Hole, Par, Usual Par, Round, Result.
